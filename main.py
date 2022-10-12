@@ -1,6 +1,9 @@
-from models import tournament, tour, match, player
-from views.manager import MainMenu
+from controler.controler import MainControler
 
-MainMenu()
+def main():
+    game = MainControler()
+    game.run()
 
 
+if __name__ == '__main__':
+    main()

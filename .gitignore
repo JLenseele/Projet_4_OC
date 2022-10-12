@@ -1,8 +1,5 @@
 env/
 .idea/
-"Centre \303\251checs - mail.docx"
-"Centre \303\251checs - sp\303\251cification technique.docx"
-controllers/__pycache__/
-models/__pycache__/
-test.py
-views/__pycache__/
+view/__pycache__/*
+models/__pycache__/*
+controler/__pycache__/*
