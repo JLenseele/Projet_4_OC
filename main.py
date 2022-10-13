@@ -1,7 +1,7 @@
-from controler.controler import MainControler
+from controler.controler import MainController
 
 def main():
-    game = MainControler()
+    game = MainController()
     game.run()
 
 

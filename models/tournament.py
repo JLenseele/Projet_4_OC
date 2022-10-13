@@ -1,3 +1,6 @@
+from datetime import date
+
+
 class Tournament:
     """
     Class Tournament
@@ -13,7 +16,10 @@ class Tournament:
         self.list_tour = list_tour
 
     def __str__(self):
-        return f"Tournoi: {self.name}"
+        return print(f"----------------------------------------------------------------------------------\n"
+                     f"Tournoi créé : {self.name} à {self.place}, du {self.date_start} au {self.date_end} \n"
+                     f"----------------------------------------------------------------------------------\n"
+                     f"Joueurs actuel : {len(self.id_players)} \n")
 
     def add_list_player(self, list):
         self.list_player = list
