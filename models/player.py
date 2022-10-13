@@ -9,7 +9,10 @@ class Player:
         self.score = score
 
     def __str__(self):
-        return f"{self.id_player} : name :{self.family_name}, {self.name}"
+        return print(f"----------------\n"
+                     f"[{self.id_player}] Name : {self.family_name} {self.name}\n"
+                     f"Classement : {self.rank}\n"
+                     f"----------------")
 
     def set_list_id(self):
         return self.id_player

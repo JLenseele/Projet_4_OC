@@ -8,4 +8,4 @@ class SetPlayer:
                             "Rank" : "Classement actuel : "}
 
     def write(self, attr):
-        return input(self.set_tournament[attr])
+        return input(self.dict_player[attr])
