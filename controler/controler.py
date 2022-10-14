@@ -25,16 +25,18 @@ class MainController:
         # models
         self.players = []
         self.tournament = None
-        self.list_id = []
-        self.list_tour = []
-        self.list_matchs = []
-        self.list_associate_player = []
 
-        # view
+        # views
         self.menu = Menu()
         self.set_tournament = SetTournament()
         self.set_player = SetPlayer()
         self.error = Error()
+
+        # listes du controller
+        self.list_id = []
+        self.list_tour = []
+        self.list_matchs = []
+        self.list_associate_player = []
 
     def run(self):
 
@@ -249,52 +251,82 @@ class MainController:
             self.list_tour.append(current_round)
 
     def create_match(self, method):
+
+        # reinitialise la liste des matchs pour en ajouter de nouveaux au round suivant
         self.list_matchs = []
+        # reinitialise la liste des joueurs triés
         list_sort_players = []
-        pairs = []
+        # determine le nombre de match a créer (1 round = 1 match par joueur)
         nb_match = len(self.players) / NB_MATCH_PER_TOUR
 
-        # Triage des joueurs par score, puis par classement pour les scores identique
-        self.players.sort(key=attrgetter('score'))
+        # Triage des joueurs par score
+        self.players.sort(key=attrgetter('score'), reverse=True)
 
+        # puis triage des joueurs par rank, pour les joueurs ayant le meme score
         L = [list(v) for k, v in itertools.groupby(self.players)]
         for l in L:
             l.sort(key=attrgetter('rank'))
             for u in l:
+                # incremente une liste trié pour le round a venir
                 list_sort_players.append(u)
 
+        # method split utilisé pour le premier round
         if method == "split":
             upper_player, lower_player = self.split_player(list_sort_players)
             for i in range(int(nb_match)):
                 j1 = upper_player[i]
                 j2 = lower_player[i]
-                pair = f"{j1.id_number}/{j2.id_number}"
+                pair = f"{j1.id_player}/{j2.id_player}"
                 self.list_associate_player.append(pair)
                 self.list_matchs.append(Match(upper_player[i], lower_player[i], 0, 0))
 
+        # metode swiss pour les round suivant
         elif method == "swiss":
-            for i in range(int(nb_match)):
+            long = int(len(list_sort_players))
+            print(long)
+            valid_match = False
+            rematch = 0
+            while valid_match == False:
+                # reinitialise la liste des joueurs utilisés pour le round suivant
+                used_players = []
+                for j in range(long - 1):
+                    j1 = list_sort_players[j]
+                    if j1 not in used_players:
+                        for k in range(long):
+                            if k > j:
+                                if rematch > 0:
+                                    j = j + rematch
+                                j2 = list_sort_players[k]
+                                if j2 not in used_players and j1 not in used_players and j1 != j2:
+                                    pair = f"{j1.id_player}/{j2.id_player}"
+                                    if pair not in self.list_associate_player:
+                                        self.list_associate_player.append(pair)
+                                        used_players.append(j1)
+                                        used_players.append(j2)
+                                        new_match = Match(j1, j2, 0, 0)
+                                        self.list_matchs.append(new_match)
 
-                for first_p in list_sort_players:
-                    j1 = first_p
+                                    else:
+                                        pass
+                                else:
+                                    pass
+                            else:
+                                pass
+                    else:
+                        pass
+                if len(self.list_matchs) < nb_match:
+                    for i in range(len(self.list_matchs)):
+                        self.list_associate_player.pop()
+                    self.list_matchs = []
+                    if rematch == 0:
+                        rematch = 1
+                    else:
+                        rematch += 1
+                else:
+                    valid_match = True
 
-                    for second_p in list_sort_players:
-                        j2 = second_p
 
-                        if j1.id_number != j2.id_number:
-                            pair = f"{j1.id_number}/{j2.id_number}"
-                            pairs.append(pair)
-                            for pair in pairs:
-                                if pair not in self.list_associate_player:
-                                    new_match = Match(j1, j2, 0, 0)
-                                    print(f"*** create match - {j1.name} / {j2.name}")
-                                    list_sort_players.remove(j1)
-                                    self.list_matchs.append(new_match)
-                                    self.list_associate_player.append(pair)
-                                    print(f"*** list associate player {self.list_associate_player}")
-                                    break
-                        else:
-                            pass
+
 
         self.add_match_to_round()
 
