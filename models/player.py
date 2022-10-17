@@ -9,10 +9,13 @@ class Player:
         self.score = score
 
     def __str__(self):
-        return print(f"----------------\n"
-                     f"[{self.id_player}] Name : {self.family_name} {self.name}\n"
-                     f"Classement : {self.rank}\n"
-                     f"----------------")
+        form = "{0:8}{1:10}{2:10}{3:12}{4:3}{5:4}"
+        return print(form.format(self.id_player,
+                                 self.name,
+                                 self.family_name,
+                                 self.birthday,
+                                 self.sex,
+                                 self.rank))
 
     def set_list_id(self):
         return self.id_player

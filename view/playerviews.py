@@ -9,3 +9,6 @@ class SetPlayer:
 
     def write(self, attr):
         return input(self.dict_player[attr])
+
+    def list_player(self):
+        pass

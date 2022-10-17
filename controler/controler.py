@@ -23,7 +23,6 @@ class MainController:
     """Main controller."""
     def __init__(self):
         # models
-        self.players = []
         self.tournament = None
 
         # views
@@ -36,7 +35,9 @@ class MainController:
         self.list_id = []
         self.list_tour = []
         self.list_matchs = []
+        self.list_tournament = []
         self.list_associate_player = []
+        self.list_players = []
 
     def run(self):
 
@@ -51,10 +52,17 @@ class MainController:
                     self.create_tournament()
                     valid_choice = True
                 elif main_menu == 2:
+                    self.pick_tournament()
+                    valid_choice = True
+                elif main_menu == 3:
+                    self.show_report()
+                elif main_menu == 4:
                     valid_choice = True
                     quit()
                 else:
                     self.error.show_error("MenuError")
+
+    def check_second_menu(self):
 
         valid_choice = False
         while not valid_choice:
@@ -64,14 +72,27 @@ class MainController:
                 self.error.show_error("ValueError")
             else:
                 if second_menu == 1:
-                    self.add_player()
-                    self.set_list_id()
-                    valid_choice = True
+                    if self.tournament.nb_player > len(self.tournament.id_players):
+                        self.error.show_error("PlayerMissing")
+                    else:
+                        self.start_tournament()
+                        valid_choice = True
                 elif second_menu == 2:
+                    self.create_player()
+                    valid_choice = True
+                elif second_menu == 3:
+                    self.add_player()
+                    valid_choice = True
+                elif second_menu == 4:
+                    self.run()
+                    valid_choice = True
+                elif second_menu == 5:
                     valid_choice = True
                     quit()
                 else:
                     self.error.show_error("MenuError")
+
+    def start_tournament(self):
 
         valid_choice = False
         while not valid_choice:
@@ -95,7 +116,6 @@ class MainController:
                 method = 'split'
             else:
                 method = 'swiss'
-            print(f"*** boucle while - run method = {method}")
             self.create_match(method)
             matchs = self.list_matchs
 
@@ -116,6 +136,7 @@ class MainController:
                     else:
                         self.error.show_error("MenuError")
             i += 1
+        self.menu.show_result()
 
     def create_tournament(self):
 
@@ -173,6 +194,31 @@ class MainController:
             else:
                 self.error.show_error("ModTournament")
 
+        valid_nbplayer = False
+        while not valid_nbplayer:
+            try:
+                nb_player = int(self.set_tournament.write("Number_player"))
+            except ValueError:
+                self.error.show_error("ValueError")
+            except TypeError:
+                print("error TypeError")
+            else:
+                valid_nbplayer = True
+
+        valid_nbround = False
+        while not valid_nbround:
+            try:
+                nb_rounds = int(self.set_tournament.write("Number_rounds"))
+            except ValueError:
+                self.error.show_error("ValueError")
+            except TypeError:
+                print("error TypeError")
+            else:
+                if nb_rounds >= nb_player:
+                    self.error.show_error("MoreRoundThanPlayer")
+                else:
+                    valid_nbround = True
+
         valid_desc = False
         while not valid_desc:
             description = self.set_tournament.write("Description")
@@ -184,53 +230,81 @@ class MainController:
         list_tour = []
         id_players = []
 
-        self.tournament = Tournament(name, place, date_start, date_end, id_players, game_mod, description, list_tour)
+        self.tournament = Tournament(name, place, date_start, date_end, id_players, game_mod, description, list_tour, nb_rounds, nb_player)
         self.tournament.__str__()
+        self.list_tournament.append(self.tournament)
 
-    def add_player(self):
+        self.check_second_menu()
+
+    def pick_tournament(self):
+
+        pick = int(self.set_tournament.show_list_tournament(self.list_tournament)) - 1
+        if pick > -1:
+            try :
+                self.tournament = self.list_tournament[pick]
+                self.check_second_menu()
+            except IndexError:
+                self.error.show_error("IndexError")
+                self.run()
+            except ValueError:
+                self.error.show_error("ValueError")
+                self.run()
+        else:
+            self.run()
+
+    def create_player(self):
         """
         Call Menu to add some player
         to the tournament
         """
-        while len(self.players) < NB_PLAYER:
+        id_player = random.randint(10000, 99999)
+        while id_player in self.list_id:
             id_player = random.randint(10000, 99999)
-            while id_player in self.list_id:
-                id_player = random.randint(10000, 99999)
 
-            valid_fname = False
-            while not valid_fname:
-                family_name = self.set_player.write("Family_name")
-                if any(caract.isdigit() for caract in family_name):
-                    self.error.show_error("NoNb")
-                elif len(family_name) > 40:
-                    self.error.show_error("TooLong")
-                else:
-                    valid_fname = True
+        valid_fname = False
+        while not valid_fname:
+            family_name = self.set_player.write("Family_name")
+            if any(caract.isdigit() for caract in family_name):
+                self.error.show_error("NoNb")
+            elif len(family_name) > 40:
+                self.error.show_error("TooLong")
+            else:
+               valid_fname = True
 
-            valid_name = False
-            while not valid_name:
-                name = self.set_player.write("Name")
-                if any(caract.isdigit() for caract in name):
-                    self.error.show_error("NoNb")
-                elif len(family_name) > 40:
-                    self.error.show_error("TooLong")
-                else:
-                    valid_name = True
+        valid_name = False
+        while not valid_name:
+            name = self.set_player.write("Name")
+            if any(caract.isdigit() for caract in name):
+                self.error.show_error("NoNb")
+            elif len(family_name) > 40:
+                self.error.show_error("TooLong")
+            else:
+                valid_name = True
 
-            birthday = self.set_player.write("Birthday")
-            sex = self.set_player.write("Sex")
-            rank = self.set_player.write("Rank")
+        birthday = self.set_player.write("Birthday")
+        sex = self.set_player.write("Sex")
+        rank = self.set_player.write("Rank")
 
-            player = Player(id_player, family_name, name, birthday, sex, rank)
-            self.players.append(player)
-            player.__str__()
+        player = Player(id_player, family_name, name, birthday, sex, rank)
+        self.list_players.append(player)
+        self.check_second_menu()
+
+    def add_player(self):
+        if len(self.list_players) > 0:
+            for player in self.list_players:
+                Player.__str__(player)
+
+
+        else:
+            self.error.show_error("NoPlayer")
+
 
     def set_list_id(self):
         """
         Add all id_player in a list
         for a current tournament
         """
-        for player in self.players:
+        for player in self.list_players:
             self.list_id.append(player.id_player)
             self.add_list_id_tournament()
         print("Les joueurs sont ajoutéés au tournoi")
@@ -247,7 +321,6 @@ class MainController:
             date_start = date_start.strftime("%d/%m/%Y %H:%M:%S")
             date_end = None
             current_round = Tour(name, list_matchs, date_start, date_end)
-            print(f"*** create_tour : {current_round.name}")
             self.list_tour.append(current_round)
 
     def create_match(self, method):
@@ -257,13 +330,13 @@ class MainController:
         # reinitialise la liste des joueurs triés
         list_sort_players = []
         # determine le nombre de match a créer (1 round = 1 match par joueur)
-        nb_match = len(self.players) / NB_MATCH_PER_TOUR
+        nb_match = len(self.list_players) / NB_MATCH_PER_TOUR
 
         # Triage des joueurs par score
-        self.players.sort(key=attrgetter('score'), reverse=True)
+        self.list_players.sort(key=attrgetter('score'), reverse=True)
 
         # puis triage des joueurs par rank, pour les joueurs ayant le meme score
-        L = [list(v) for k, v in itertools.groupby(self.players)]
+        L = [list(v) for k, v in itertools.groupby(self.list_players)]
         for l in L:
             l.sort(key=attrgetter('rank'))
             for u in l:
@@ -343,7 +416,6 @@ class MainController:
                 tour.list_matchs = self.list_matchs
                 tour.__str__()
                 set_dateend = True
-                print(f"*** add match to round : {tour.name}")
             else:
                 i += 1
 
@@ -373,7 +445,6 @@ class MainController:
                     tour.date_end = datetime.now()
                     tour.date_end = tour.date_end.strftime("%d/%m/%Y %H:%M:%S")
                     end_tour = True
-                    print(f"*** close round : {tour.name}")
                 else:
                     i += 1
             else:
