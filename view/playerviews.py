@@ -10,5 +10,12 @@ class SetPlayer:
     def write(self, attr):
         return input(self.dict_player[attr])
 
-    def list_player(self):
-        pass
+    def menu_list_player(self, attr):
+        if attr == "id":
+            return print("Saisissez les ID Joueurs un par un pour les ajouter au tournoi (Q pour quitter) :")
+        elif attr == "rank":
+            return input("Saisissez l'ID d'un joueurs pour modifier son classement (Q pour quitter)")
+        elif attr == "new_rank":
+            return input("Nouveaux classement (ligue) : ")
+        else:
+            return input()

@@ -1,3 +1,6 @@
+from operator import attrgetter
+
+
 class Menu:
 
 
@@ -12,9 +15,11 @@ class Menu:
     def main_menu(self):
         menu_options = {
             1: 'Créer un nouveau tournoi',
-            2: 'Sélectionner un tournoi en cour',
+            2: 'Sélectionner un autre tournoi',
             3: 'Générer les rapports',
-            4: 'Quitter',
+            4: 'Créer des joueurs',
+            5: 'Modification des classements (ligue)',
+            6: 'Quitter'
         }
         print("\n Menu Principal")
         for key in menu_options.keys():
@@ -25,34 +30,55 @@ class Menu:
     def second_menu(self):
         menu_options = {
             1: 'Démarrer le tournoi',
-            2: 'Saisir un nouveau joueur au tournoi',
-            3: 'Ajouter un joueur existant au tournoi',
+            2: 'Inscription nouveau joueur au tournoi',
+            3: 'Inscription joueur existant au tournoi',
             4: 'Retour Menu Principal',
-            5: 'Quitter',
+            5: 'Quitter'
         }
         for key in menu_options.keys():
             print(' ', key, '--', menu_options[key])
         choice = int(input(""))
         return choice
 
-    def start_round(self):
-        menu_options = {
-            1: 'Démarrer le tournoi',
-            2: 'Quitter',
-        }
-        for key in menu_options.keys():
-            print(' ', key, '--', menu_options[key])
-        choice = int(input(""))
-        return choice
+    def second_menu_option(self):
+        return int(input("Combien de joueurs voulez vous inscrire ? "))
 
     def resolution(self):
         menu_options = {
             1: 'Cloturer le round',
-            2: 'Quitter',
+            2: 'Quitter'
         }
-
         print("Une fois les matchs terminés, cloturez le round pour saisir les résultats")
         for key in menu_options.keys():
             print(key, '--', menu_options[key])
+        choice = int(input(""))
+        return choice
+
+    def show_result(self, list_players):
+
+        print(f"=============================\n"
+              f"Tournoi terminé\n"
+              f"Classement final :\n")
+        form = "{0:^10}{1:^10}{2:^15}{3:^15}{4:^5}"
+        print(f"Classement / Score /    Nom    /   Prénom   / G / Classement(ligue)")
+        list_players.sort(key=attrgetter('score'), reverse=True)
+        i = 1
+        for player in list_players:
+            print(form.format(i,
+                              player.score,
+                              player.name,
+                              player.family_name,
+                              player.rank,))
+            i += 1
+        return i, player.score, player.id_player, player.name, player.family_name
+
+    def menu_report(self):
+        menu_options = {
+            1: 'Rapport de tous les joueurs (Ordre alphabetique)',
+            2: 'Rapport de tous les joueurs (Classement)',
+            3: 'Liste de tous les tournois'
+        }
+        for key in menu_options.keys():
+            print(' ', key, '--', menu_options[key])
         choice = int(input(""))
         return choice

@@ -9,7 +9,7 @@ class Player:
         self.score = score
 
     def __str__(self):
-        form = "{0:8}{1:10}{2:10}{3:12}{4:3}{5:4}"
+        form = "{0:^8}{1:^10}{2:^10}{3:^12}{4:^3}{5:^4}"
         return print(form.format(self.id_player,
                                  self.name,
                                  self.family_name,

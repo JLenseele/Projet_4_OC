@@ -16,6 +16,8 @@ class Tournament:
         self.list_tour = list_tour
         self.nb_tours = nb_tours
         self.nb_player = nb_player
+        self.player = []
+        self.result = ()
 
     def __str__(self):
         return print(f"----------------------------------------------------------------------------------\n"
