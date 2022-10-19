@@ -12,6 +12,8 @@ from view.error import Error
 from view.report import Report
 from operator import attrgetter
 from datetime import datetime
+from tinydb import TinyDB
+
 
 GAME_MODE = ("bullet", "blitz", "fast")
 
@@ -60,6 +62,10 @@ class MainController:
                 elif main_menu == 5:
                     self.edit_rank()
                 elif main_menu == 6:
+                    self.serialized()
+                elif main_menu == 7:
+                    self.deserialized()
+                elif main_menu == 8:
                     valid_choice = True
                     quit()
                 else:
@@ -219,7 +225,16 @@ class MainController:
         list_tour = []
         id_players = []
 
-        self.tournament = Tournament(name, place, date_start, date_end, id_players, game_mod, description, list_tour, nb_rounds, nb_player)
+        self.tournament = Tournament(name,
+                                     place,
+                                     date_start,
+                                     date_end,
+                                     id_players,
+                                     game_mod,
+                                     description,
+                                     list_tour,
+                                     nb_rounds,
+                                     nb_player)
         self.tournament.__str__()
         self.list_tournament.append(self.tournament)
 
@@ -229,7 +244,7 @@ class MainController:
 
         pick = int(self.set_tournament.show_list_tournament(self.list_tournament)) - 1
         if pick > -1:
-            try :
+            try:
                 self.tournament = self.list_tournament[pick]
                 self.check_second_menu()
             except IndexError:
@@ -260,7 +275,7 @@ class MainController:
                 elif len(family_name) > 40:
                     self.error.show_error("TooLong")
                 else:
-                   valid_fname = True
+                    valid_fname = True
 
             valid_name = False
             while not valid_name:
@@ -298,7 +313,7 @@ class MainController:
                         self.check_second_menu()
                     elif int(choice) in self.list_id:
                         self.tournament.id_players.append(int(choice))
-                    else :
+                    else:
                         self.error.show_error("IndexError")
                 except ValueError:
                     self.error.show_error("ValueError")
@@ -334,10 +349,10 @@ class MainController:
         self.tournament.player.sort(key=attrgetter('score'), reverse=True)
 
         # puis triage des joueurs par rank, pour les joueurs ayant le meme score
-        L = [list(v) for k, v in itertools.groupby(self.list_players)]
-        for l in L:
-            l.sort(key=attrgetter('rank'))
-            for u in l:
+        low_list = [list(v) for k, v in itertools.groupby(self.list_players)]
+        for player in low_list:
+            player.sort(key=attrgetter('rank'))
+            for u in player:
                 # incremente une liste trié pour le round a venir
                 list_sort_players.append(u)
 
@@ -357,7 +372,7 @@ class MainController:
             print(long)
             valid_match = False
             rematch = 0
-            while valid_match == False:
+            while not valid_match:
                 # reinitialise la liste des joueurs utilisés pour le round suivant
                 used_players = []
                 for j in range(long - 1):
@@ -476,3 +491,55 @@ class MainController:
     def split_player(list):
         half = len(list)//2
         return list[:half], list[half:]
+
+    def serialized(self):
+
+        db = TinyDB('db.json')
+
+        players_table = db.table('players')
+        players_table.truncate()  # clear the table first
+        serialized_players = []
+        for player in self.list_players:
+            serialized_player = {'id':player.id_player,
+                                 'name': player.name,
+                                 'family_name': player.family_name,
+                                 'birthday': player.birthday,
+                                 'sex': player.sex,
+                                 'rank': player.rank}
+            serialized_players.append(serialized_player)
+        players_table.insert_multiple(serialized_players)
+
+        tournaments_table = db.table('tournaments')
+        tournaments_table.truncate()  # clear the table first
+        serialized_tournaments = []
+        for tournament in self.list_tournament:
+            serialized_tournament = {'name': tournament.name,
+                                     'place': tournament.place,
+                                     'date_start': str(tournament.date_start),
+                                     'date_end': str(tournament.date_end),
+                                     'id_player': tournament.id_players,
+                                     'game_mod': tournament.game_mode,
+                                     'descr': tournament.description,
+                                     'list_tour': tournament.list_tour,
+                                     'nb_player': tournament.nb_player,
+                                     'result': tournament.result}
+            serialized_tournaments.append(serialized_tournament)
+        tournaments_table.insert_multiple(serialized_tournaments)
+        db.close()
+
+        print('Enregistrement terminé')
+
+    def deserialized(self):
+        db = TinyDB('db.json')
+        players_table = db.table('players')
+        serialized_players = players_table.all()
+        for serialized_player in serialized_players:
+            id = serialized_player['id']
+            name = serialized_player['name']
+            fname = serialized_player['family_name']
+            birth = serialized_player['birthday']
+            sex = serialized_player['sex']
+            rank = serialized_player['rank']
+            player = Player(id, fname, name, birth, sex, rank)
+            self.list_id.append(id)
+            self.list_players.append(player)

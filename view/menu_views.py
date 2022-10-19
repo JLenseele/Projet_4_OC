@@ -19,7 +19,9 @@ class Menu:
             3: 'Générer les rapports',
             4: 'Créer des joueurs',
             5: 'Modification des classements (ligue)',
-            6: 'Quitter'
+            6: 'Enregistrer le programme',
+            7: 'Importer données',
+            8: 'Quitter'
         }
         print("\n Menu Principal")
         for key in menu_options.keys():
@@ -56,21 +58,26 @@ class Menu:
 
     def show_result(self, list_players):
 
+        form = "{0:^10}{1:^10}{2:^15}{3:^15}{4:^5}"
+        result = []
+
         print(f"=============================\n"
               f"Tournoi terminé\n"
               f"Classement final :\n")
-        form = "{0:^10}{1:^10}{2:^15}{3:^15}{4:^5}"
-        print(f"Classement / Score /    Nom    /   Prénom   / G / Classement(ligue)")
+        print(f"Classement / Score /       Nom      /      Prénom     /  Classement(ligue)")
+
         list_players.sort(key=attrgetter('score'), reverse=True)
         i = 1
+
         for player in list_players:
             print(form.format(i,
                               player.score,
                               player.name,
                               player.family_name,
                               player.rank,))
+            result.append(i, player.score, player.id_player, player.name, player.family_name)
             i += 1
-        return i, player.score, player.id_player, player.name, player.family_name
+        return result
 
     def menu_report(self):
         menu_options = {

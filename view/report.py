@@ -11,20 +11,21 @@ class Report:
 
         if rapport == 1:
             players.sort(key=attrgetter('name'))
-            print(f"Classement / Score /       Nom      /      Prénom     /  Classement(ligue)")
+            print(f"   ID  /    NOM    /    PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
             for player in players:
                 player.__str__()
         elif rapport == 2:
             players.sort(key=attrgetter('rank'))
-            print(f"Classement / Score /       Nom      /      Prénom     /  Classement(ligue)")
+            print(f"   ID  /    NOM    /    PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
             for player in players:
                 player.__str__()
         elif rapport == 3:
-            tournaments.sort(key=attrgetter('name'), reverse=True)
+            tournaments.sort(key=attrgetter('name'))
             i = 1
             for tournament in tournaments:
                 print(f"[{i}]")
                 tournament.__str__()
+                i += 1
 
             choice = input("Vous pouvez choisir le numéro d'un tournoi pour voir les détails")
             tournament = tournaments[int(choice) - 1]
@@ -33,17 +34,17 @@ class Report:
                   f"\n"
                   f"Liste des participants (ordre alphabétique) :")
             print(f"   ID  /    NOM    /    PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
-            tournament.list_player.sort(key=attrgetter('name'))
-            for player in tournaments.list_player:
+            tournament.player.sort(key=attrgetter('name'))
+            for player in tournaments.player:
                 print(f"{player.__str__()}")
-            tournament.list_player.sort(key=attrgetter('rank'))
+            tournament.player.sort(key=attrgetter('rank'))
             print(f"Liste des participants (ordre alphabétique) :"
-                  f"Classement / Score /       Nom      /      Prénom     /  Classement(ligue)")
-            for player in tournaments.list_player:
+                  f"   ID  /    NOM    /    PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
+            for player in tournaments.player:
                 print(f"{player.__str__()}")
             print(f"Liste Rounds et Matchs du tournoi :")
             for tour in tournament.list_tour:
-                print(tour.name)
+                print("#", tour.name)
                 for match in tour.list_matchs:
-                    print(match.__str__())
+                    print("  -", match.__str__())
 
