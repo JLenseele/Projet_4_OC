@@ -59,7 +59,7 @@ class Menu:
     def show_result(self, list_players):
 
         form = "{0:^10}{1:^10}{2:^15}{3:^15}{4:^5}"
-        result = []
+        results = []
 
         print(f"=============================\n"
               f"Tournoi terminé\n"
@@ -75,9 +75,10 @@ class Menu:
                               player.name,
                               player.family_name,
                               player.rank,))
-            result.append(i, player.score, player.id_player, player.name, player.family_name)
+            line = [i, player.score, player.id_player, player.name, player.family_name]
+            results.append(line)
             i += 1
-        return result
+        return results
 
     def menu_report(self):
         menu_options = {

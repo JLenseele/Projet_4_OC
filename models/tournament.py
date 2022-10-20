@@ -21,7 +21,7 @@ class Tournament:
 
     def __str__(self):
         return print(f"----------------------------------------------------------------------------------\n"
-                     f" Tournoi : {self.name} à {self.place}, du {self.date_start} au {self.date_end} \n"
+                     f" Tournoi : {self.name} à {self.place}, du {self.date_start.date} au {self.date_end.date} \n"
                      f" En {self.nb_tours} Rounds \n"
                      f" Joueurs actuel : {len(self.id_players)} / {self.nb_player} \n"
                      f"----------------------------------------------------------------------------------\n")

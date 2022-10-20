@@ -152,7 +152,7 @@ class MainController:
                 valid_place = True
 
         valid_date = False
-        date_format = "%Y/%m/%d"
+        date_format = "%d/%m/%Y"
         while not valid_date:
             try:
                 date_start = self.set_tournament.write("Date_start")
@@ -165,7 +165,7 @@ class MainController:
                 valid_date = True
 
         valid_date = False
-        date_format = "%Y/%m/%d"
+        date_format = "%d/%m/%Y"
         while not valid_date:
             try:
                 date_end = self.set_tournament.write("Date_end")
@@ -175,7 +175,10 @@ class MainController:
             except TypeError:
                 print("error TypeError")
             else:
-                valid_date = True
+                if date_end < date_start:
+                    self.error.show_error("DateEnd")
+                else:
+                    valid_date = True
 
         mods = ""
         for mod in GAME_MODE:
@@ -471,7 +474,7 @@ class MainController:
                 try:
                     choice = self.set_player.menu_list_player("rank")
                     if choice == "q":
-                        self.check_second_menu()
+                        self.run()
                     elif int(choice) in self.list_id:
                         new_rank = self.set_player.menu_list_player("new_rank")
                         for player in self.list_players:
@@ -499,6 +502,11 @@ class MainController:
         players_table = db.table('players')
         players_table.truncate()  # clear the table first
         serialized_players = []
+
+        tournaments_table = db.table('tournaments')
+        tournaments_table.truncate()  # clear the table first
+        serialized_tournaments = []
+
         for player in self.list_players:
             serialized_player = {'id':player.id_player,
                                  'name': player.name,
@@ -509,9 +517,6 @@ class MainController:
             serialized_players.append(serialized_player)
         players_table.insert_multiple(serialized_players)
 
-        tournaments_table = db.table('tournaments')
-        tournaments_table.truncate()  # clear the table first
-        serialized_tournaments = []
         for tournament in self.list_tournament:
             serialized_tournament = {'name': tournament.name,
                                      'place': tournament.place,
@@ -521,6 +526,7 @@ class MainController:
                                      'game_mod': tournament.game_mode,
                                      'descr': tournament.description,
                                      'list_tour': tournament.list_tour,
+                                     'nb_tours' : tournament.nb_tours,
                                      'nb_player': tournament.nb_player,
                                      'result': tournament.result}
             serialized_tournaments.append(serialized_tournament)
@@ -532,7 +538,10 @@ class MainController:
     def deserialized(self):
         db = TinyDB('db.json')
         players_table = db.table('players')
+        tournaments_table = db.table('tournament')
         serialized_players = players_table.all()
+        serialized_tournaments = tournaments_table.all()
+
         for serialized_player in serialized_players:
             id = serialized_player['id']
             name = serialized_player['name']
@@ -543,3 +552,20 @@ class MainController:
             player = Player(id, fname, name, birth, sex, rank)
             self.list_id.append(id)
             self.list_players.append(player)
+
+        for serialized_tournament in serialized_tournaments:
+            name = serialized_tournament['name']
+            place = serialized_tournament['place']
+            date_start = serialized_tournament['date_start']
+            date_end = serialized_tournament['date_end']
+            id_player = serialized_tournament['id_player']
+            game_mod = serialized_tournament['game_mod']
+            descr = serialized_tournament['descr']
+            list_tour = serialized_tournament['list_tour']
+            nb_tours = serialized_tournament['nb_tours']
+            nb_player = serialized_tournament['nb_player']
+            result = serialized_tournament['result']
+            tournament = Tournament(name, place, date_start,
+                                    date_end, id_player, game_mod,
+                                    descr, list_tour, nb_tours,
+                                    nb_player, result)

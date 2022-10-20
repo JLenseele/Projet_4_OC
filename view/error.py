@@ -9,14 +9,16 @@ class Error:
                            "PlaceTournament" : "/!\ La localisation saisie est trop courte\n",
                            "DateTournament" : "/!\ format incorect \n "
                                               "Le format doit etre de type : YYYY/MM/DD",
-                           "ModTournament" : "Ce mod de jeu n'existe pas",
-                           "DescTournament" : "La description est trop courte",
-                           "TooLong" : "Ce parametre est trop long",
-                           "NoNb" : "Ce parametre ne doit pas contenir de nombre",
-                           "MoreRoundThanPlayer" : "Il ne peut y avoir plus de tours que de joueurs"
+                           "DateEnd" : "/!\ La date de fin de tournoi ne peut etre antérieure"
+                                       "à la date de démarrage du tournoi",
+                           "ModTournament" : "/!\ Ce mod de jeu n'existe pas",
+                           "DescTournament" : "/!\ La description est trop courte",
+                           "TooLong" : "/!\ Ce parametre est trop long",
+                           "NoNb" : "/!\ Ce parametre ne doit pas contenir de nombre",
+                           "MoreRoundThanPlayer" : "/!\ Il ne peut y avoir plus de tours que de joueurs"
                                                    "(Max rounds = Nombre de joueurs - 1)",
-                           "PlayerMissing" : "Il manque des joueurs pour démarrer le tournoi",
-                           "NoPlayer" : "Aucun joueur créé"}
+                           "PlayerMissing" : "/!\ Il manque des joueurs pour démarrer le tournoi",
+                           "NoPlayer" : "/!\ Aucun joueur créé"}
 
     def show_error(self, error):
         return print(self.dict_error[error])
