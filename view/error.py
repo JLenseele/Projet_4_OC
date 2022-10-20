@@ -7,12 +7,13 @@ class Error:
                            "MenuError" : "/!\ Ce choix n'est pas disponible\n",
                            "NameTournament" : "/!\ Le nom du tournoi est trop court\n",
                            "PlaceTournament" : "/!\ La localisation saisie est trop courte\n",
-                           "DateTournament" : "/!\ format incorect \n "
-                                              "Le format doit etre de type : YYYY/MM/DD",
+                           "DateFormat" : "/!\ format incorect \n "
+                                              "Le format doit etre de type : DD/MM/YYYY",
                            "DateEnd" : "/!\ La date de fin de tournoi ne peut etre antérieure"
                                        "à la date de démarrage du tournoi",
                            "ModTournament" : "/!\ Ce mod de jeu n'existe pas",
                            "DescTournament" : "/!\ La description est trop courte",
+                           "Gender" : "/!\ Erreur de saisie -> M ou F ",
                            "TooLong" : "/!\ Ce parametre est trop long",
                            "NoNb" : "/!\ Ce parametre ne doit pas contenir de nombre",
                            "MoreRoundThanPlayer" : "/!\ Il ne peut y avoir plus de tours que de joueurs"

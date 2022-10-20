@@ -9,10 +9,19 @@ class SetTournament:
                                              f" bullet / blitz / fast : ",
                                 "Number_player" : "Entrer le nombre de participants : ",
                                 "Number_rounds": "Entrer le nombre de rounds : ",
-                                "Description" : "Entrer un description du tournoi : ",}
+                                "Description" : "Entrer un description du tournoi : ",
+                                "AddOk" : "=== Inscription au tournoi OK",
+                                "AddNok" : "=== Le tournoi en cour est plein. "
+                                           "(Joueur enregistré dans la base de données global)",
+                                "AddNok": "=== Pas de tournoi en cour. "
+                                          "(Joueur enregistré dans la base de données global)"
+                                }
 
     def write(self, attr):
         return input(self.dict_tournament[attr])
+
+    def show(self, attr):
+        return print(self.dict_tournament[attr])
 
     def show_list_tournament(self, list):
         i = 1

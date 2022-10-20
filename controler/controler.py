@@ -158,20 +158,19 @@ class MainController:
                 date_start = self.set_tournament.write("Date_start")
                 date_start = datetime.strptime(date_start, date_format)
             except ValueError:
-                self.error.show_error("DateTournament")
+                self.error.show_error("DateFormat")
             except TypeError:
                 print("error TypeError")
             else:
                 valid_date = True
 
         valid_date = False
-        date_format = "%d/%m/%Y"
         while not valid_date:
             try:
                 date_end = self.set_tournament.write("Date_end")
                 date_end = datetime.strptime(date_end, date_format)
             except ValueError:
-                self.error.show_error("DateTournament")
+                self.error.show_error("DateFormat")
             except TypeError:
                 print("error TypeError")
             else:
@@ -290,16 +289,51 @@ class MainController:
                 else:
                     valid_name = True
 
-            birthday = self.set_player.write("Birthday")
-            sex = self.set_player.write("Sex")
-            rank = self.set_player.write("Rank")
+            valid_birth = False
+            date_format = "%d/%m/%Y"
+            while not valid_birth:
+                try:
+                    date_birth = self.set_player.write("Birthday")
+                    date_birth = datetime.strptime(date_birth, date_format)
+                except ValueError:
+                    self.error.show_error("DateFormat")
+                except TypeError:
+                    self.error.show_error("DateFormat")
+                else:
+                    valid_birth = True
 
-            player = Player(id_player, family_name, name, birthday, sex, rank)
+            valid_sex = False
+            gender = ['m', 'f']
+            while not valid_sex:
+                sex = self.set_player.write("Sex")
+                if sex.lower() in gender:
+                    valid_sex = True
+                else:
+                    self.error.show_error("Gender")
+
+            valid_rank = False
+            while not valid_rank:
+                try:
+                    rank = int(self.set_player.write("Rank"))
+                except ValueError:
+                    self.error.show_error("ValueError")
+                except TypeError:
+                    print("error TypeError")
+                else:
+                    valid_rank = True
+
+            player = Player(id_player, family_name, name, date_birth, sex, rank)
             self.list_players.append(player)
-            if self.tournament:
-                self.tournament.player.append(player)
-                self.tournament.id_players.append(player.id_player)
             self.list_id.append(player.id_player)
+            if self.tournament:
+                if len(self.tournament.player) < self.tournament.nb_player:
+                    self.tournament.player.append(player)
+                    self.tournament.id_players.append(player.id_player)
+                    self.set_tournament.show('AddOk')
+                else:
+                    self.set_tournament.show('AddNok')
+            else:
+                self.set_tournament.show('AddNok2')
 
     def add_player(self):
         if len(self.list_players) > len(self.tournament.id_players):
