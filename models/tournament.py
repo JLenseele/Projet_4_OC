@@ -5,7 +5,7 @@ class Tournament:
     """
     Class Tournament
     """
-    def __init__(self, name, place, date_start, date_end, id_players, game_mode, description, list_tour, nb_tours, nb_player):
+    def __init__(self, name, place, date_start, date_end, id_players, game_mode, description, nb_tours, nb_player, list_player=None, list_tour=None, result=None):
         self.name = name
         self.place = place
         self.date_start = date_start
@@ -13,10 +13,10 @@ class Tournament:
         self.id_players = id_players
         self.game_mode = game_mode
         self.description = description
-        self.list_tour = list_tour
         self.nb_tours = nb_tours
         self.nb_player = nb_player
-        self.player = []
+        self.player = list_player
+        self.list_tour = list_tour
         self.result = None
 
     def __str__(self):

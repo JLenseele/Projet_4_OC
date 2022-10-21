@@ -13,7 +13,7 @@ class SetTournament:
                                 "AddOk" : "=== Inscription au tournoi OK",
                                 "AddNok" : "=== Le tournoi en cour est plein. "
                                            "(Joueur enregistré dans la base de données global)",
-                                "AddNok": "=== Pas de tournoi en cour. "
+                                "AddNok2": "=== Pas de tournoi en cour. "
                                           "(Joueur enregistré dans la base de données global)"
                                 }
 

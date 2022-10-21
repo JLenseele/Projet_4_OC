@@ -34,14 +34,18 @@ class Report:
                   f"\n"
                   f"Liste des participants (ordre alphabétique) :")
             print(f"   ID  /    NOM    /    PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
+
             tournament.player.sort(key=attrgetter('name'))
-            for player in tournaments.player:
+            for player in tournament.player:
                 print(f"{player.__str__()}")
-            tournament.player.sort(key=attrgetter('rank'))
-            print(f"Liste des participants (ordre alphabétique) :"
+
+            print(f"\nListe des participants (par classement) :"
                   f"   ID  /    NOM    /    PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
-            for player in tournaments.player:
+
+            tournament.player.sort(key=attrgetter('rank'))
+            for player in tournament.player:
                 print(f"{player.__str__()}")
+
             print(f"Liste Rounds et Matchs du tournoi :")
             for tour in tournament.list_tour:
                 print("#", tour.name)

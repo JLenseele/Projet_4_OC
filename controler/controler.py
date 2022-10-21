@@ -10,9 +10,11 @@ from view.tournament_views import SetTournament
 from view.playerviews import SetPlayer
 from view.error import Error
 from view.report import Report
+
 from operator import attrgetter
 from datetime import datetime
 from tinydb import TinyDB
+from math import floor
 
 
 GAME_MODE = ("bullet", "blitz", "fast")
@@ -105,10 +107,12 @@ class MainController:
         self.create_tour()
         i = 0
         while i < self.tournament.nb_tours:
+
             if i == 0:
                 method = 'split'
             else:
                 method = 'swiss'
+
             self.create_match(method)
             matchs = self.list_matchs
 
@@ -234,7 +238,6 @@ class MainController:
                                      id_players,
                                      game_mod,
                                      description,
-                                     list_tour,
                                      nb_rounds,
                                      nb_player)
         self.tournament.__str__()
@@ -350,6 +353,9 @@ class MainController:
                         self.check_second_menu()
                     elif int(choice) in self.list_id:
                         self.tournament.id_players.append(int(choice))
+                        for player in self.list_players:
+                            if player.id_player == int(choice):
+                                self.tournament.player.append(player)
                     else:
                         self.error.show_error("IndexError")
                 except ValueError:
@@ -372,6 +378,7 @@ class MainController:
             date_end = None
             current_round = Tour(name, list_matchs, date_start, date_end)
             self.list_tour.append(current_round)
+            self.tournament.list_tour.append(current_round)
 
     def create_match(self, method):
 
@@ -380,13 +387,13 @@ class MainController:
         # reinitialise la liste des joueurs triés
         list_sort_players = []
         # determine le nombre de match a créer (1 round = 1 match par joueur)
-        nb_match = len(self.tournament.player) / 2
+        nb_match = floor(len(self.tournament.player) / 2)
 
         # Triage des joueurs par score
         self.tournament.player.sort(key=attrgetter('score'), reverse=True)
 
         # puis triage des joueurs par rank, pour les joueurs ayant le meme score
-        low_list = [list(v) for k, v in itertools.groupby(self.list_players)]
+        low_list = [list(v) for k, v in itertools.groupby(self.tournament.player)]
         for player in low_list:
             player.sort(key=attrgetter('rank'))
             for u in player:
@@ -406,9 +413,9 @@ class MainController:
         # metode swiss pour les round suivant
         elif method == "swiss":
             long = int(len(list_sort_players))
-            print(long)
             valid_match = False
             rematch = 0
+
             while not valid_match:
                 # reinitialise la liste des joueurs utilisés pour le round suivant
                 used_players = []
@@ -446,7 +453,14 @@ class MainController:
                     else:
                         rematch += 1
                 else:
+                    # si un joueur n'est pas utilisé dans les matchs du round,
+                    for player in list_sort_players:
+                        if player not in used_players:
+                            # alors il gagne un point
+                            player.score += 1
+                            used_players.append(player)
                     valid_match = True
+
         self.add_match_to_round()
 
     def add_match_to_round(self):
@@ -530,28 +544,55 @@ class MainController:
         return list[:half], list[half:]
 
     def serialized(self):
+        """
+        Function de sauvegarde complete des tournois et joueurs
+        dans un fichier db.json
+        """
 
         db = TinyDB('db.json')
-
+        # creation table players
         players_table = db.table('players')
-        players_table.truncate()  # clear the table first
-        serialized_players = []
+        players_table.truncate()
 
+        # création table tournament
         tournaments_table = db.table('tournaments')
-        tournaments_table.truncate()  # clear the table first
-        serialized_tournaments = []
+        tournaments_table.truncate()
 
+        serialized_players = []
+        serialized_tournaments = []
+        serialized_tours = []
+        serialized_matchs = []
+
+        # serialized de la liste complète des joueurs
         for player in self.list_players:
             serialized_player = {'id':player.id_player,
                                  'name': player.name,
                                  'family_name': player.family_name,
-                                 'birthday': player.birthday,
+                                 'birthday': str(player.birthday),
                                  'sex': player.sex,
                                  'rank': player.rank}
             serialized_players.append(serialized_player)
         players_table.insert_multiple(serialized_players)
 
+        # serialized de la liste des tournois
         for tournament in self.list_tournament:
+            #serialized de la liste des tours d'un tournoi
+            for tour in tournament.list_tour:
+                #serialized de la liste des matchs d'un tour
+                for match in tour.list_matchs:
+
+                    serialized_match = {'p1' : match.player_1.id_player,
+                                        'p2' : match.player_2.id_player,
+                                        's1' : match.score_1,
+                                        's2' : match.score_2}
+                    serialized_matchs.append(serialized_match)
+
+                serialized_tour = {'name' : tour.name,
+                                   'list_m' : serialized_matchs,
+                                   'date_s' : tour.date_start,
+                                   'date_e' : tour.date_end}
+                serialized_tours.append(serialized_tour)
+
             serialized_tournament = {'name': tournament.name,
                                      'place': tournament.place,
                                      'date_start': str(tournament.date_start),
@@ -559,9 +600,9 @@ class MainController:
                                      'id_player': tournament.id_players,
                                      'game_mod': tournament.game_mode,
                                      'descr': tournament.description,
-                                     'list_tour': tournament.list_tour,
                                      'nb_tours' : tournament.nb_tours,
                                      'nb_player': tournament.nb_player,
+                                     'list_tour' : serialized_tours,
                                      'result': tournament.result}
             serialized_tournaments.append(serialized_tournament)
         tournaments_table.insert_multiple(serialized_tournaments)
@@ -572,7 +613,7 @@ class MainController:
     def deserialized(self):
         db = TinyDB('db.json')
         players_table = db.table('players')
-        tournaments_table = db.table('tournament')
+        tournaments_table = db.table('tournaments')
         serialized_players = players_table.all()
         serialized_tournaments = tournaments_table.all()
 
@@ -587,7 +628,38 @@ class MainController:
             self.list_id.append(id)
             self.list_players.append(player)
 
+        self.list_tour = []
         for serialized_tournament in serialized_tournaments:
+
+            self.list_tour = []
+            for serialized_tour in serialized_tournament['list_tour']:
+
+                self.list_matchs = []
+                for serialized_match in serialized_tour['list_m']:
+
+                    p1_id = serialized_match['p1']
+                    p2_id = serialized_match['p2']
+                    s1 = serialized_match['s1']
+                    s2 = serialized_match['s2']
+
+                    for player1 in self.list_players:
+                        if player1.id_player == p1_id:
+                            p1 = player1
+
+                    for player2 in self.list_players:
+                        if player2.id_player == p2_id:
+                            p2 = player2
+
+                    match = Match(p1, p2, s1, s2)
+                    self.list_matchs.append(match)
+
+                name = serialized_tour['name']
+                list_m = self.list_matchs
+                date_s = serialized_tour['date_s']
+                date_e = serialized_tour['date_e']
+                tour = Tour(name, list_m, date_s, date_e)
+                self.list_tour.append(tour)
+
             name = serialized_tournament['name']
             place = serialized_tournament['place']
             date_start = serialized_tournament['date_start']
@@ -595,11 +667,14 @@ class MainController:
             id_player = serialized_tournament['id_player']
             game_mod = serialized_tournament['game_mod']
             descr = serialized_tournament['descr']
-            list_tour = serialized_tournament['list_tour']
+            list_tour = self.list_tour
             nb_tours = serialized_tournament['nb_tours']
             nb_player = serialized_tournament['nb_player']
             result = serialized_tournament['result']
             tournament = Tournament(name, place, date_start,
                                     date_end, id_player, game_mod,
-                                    descr, list_tour, nb_tours,
+                                    descr, nb_tours,
                                     nb_player, result)
+            self.list_tournament.append(tournament)
+
+        print('Importation terminée')
