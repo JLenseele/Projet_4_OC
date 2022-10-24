@@ -352,10 +352,13 @@ class MainController:
                     if choice == "q":
                         self.check_second_menu()
                     elif int(choice) in self.list_id:
-                        self.tournament.id_players.append(int(choice))
                         for player in self.list_players:
-                            if player.id_player == int(choice):
+                            if player.id_player == int(choice) and len(self.tournament.player) < self.tournament.nb_player:
+                                self.tournament.id_players.append(int(choice))
                                 self.tournament.player.append(player)
+                                self.set_tournament.show('AddOk')
+                            else:
+                                self.set_tournament.show('AddNok')
                     else:
                         self.error.show_error("IndexError")
                 except ValueError:
