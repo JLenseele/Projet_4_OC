@@ -10,12 +10,7 @@ class SetTournament:
                                 "Number_player" : "Entrer le nombre de participants : ",
                                 "Number_rounds": "Entrer le nombre de rounds : ",
                                 "Description" : "Entrer un description du tournoi : ",
-                                "AddOk" : "=== Inscription au tournoi OK",
-                                "AddNok" : "=== Le tournoi en cour est plein. "
-                                           "(Joueur enregistré dans la base de données global)",
-                                "AddNok2": "=== Pas de tournoi en cour. "
-                                          "(Joueur enregistré dans la base de données global)"
-                                }
+                                "AddOk" : "=== Inscription au tournoi OK"}
 
     def write(self, attr):
         return input(self.dict_tournament[attr])

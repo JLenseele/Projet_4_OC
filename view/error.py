@@ -19,7 +19,11 @@ class Error:
                            "MoreRoundThanPlayer" : "/!\ Il ne peut y avoir plus de tours que de joueurs"
                                                    "(Max rounds = Nombre de joueurs - 1)",
                            "PlayerMissing" : "/!\ Il manque des joueurs pour démarrer le tournoi",
-                           "NoPlayer" : "/!\ Aucun joueur créé"}
+                           "NoPlayer" : "/!\ Aucun joueur créé",
+                            "AddNok" : "=== Le tournoi en cour est plein. "
+                                       "(Joueur enregistré dans la base de données global)",
+                            "AddNok2": "=== Pas de tournoi en cour."
+                                       " (Joueur enregistré dans la base de données global)"}
 
     def show_error(self, error):
         return print(self.dict_error[error])

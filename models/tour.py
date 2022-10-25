@@ -9,6 +9,7 @@ class Tour:
 
     def __str__(self):
         show_match = ""
+        frm = "%d/%m/%Y %H:%M:%S"
         for match in self.list_matchs:
             player1 = match.player_1
             player2 = match.player_2
@@ -24,5 +25,5 @@ class Tour:
         print(f"--- {self.name} ------------------------------------------\n"
               f"** Liste des matchs à jouer **\n"
               f"{show_match}\n"
-              f"-- Démarrage : {self.date_start} -----")
+              f"-- Démarrage : {self.date_start.strftime(frm)} -----")
 

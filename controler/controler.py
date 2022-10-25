@@ -42,11 +42,13 @@ class MainController:
         self.list_players = []
 
     def run(self):
-
+        """
+        Cette fonction lance le menu principal du programme
+        """
         valid_choice = False
         while not valid_choice:
             try:
-                main_menu = self.menu.main_menu()
+                main_menu = self.menu.main_menu(self.tournament)
             except ValueError:
                 self.error.show_error("ValueError")
             else:
@@ -74,7 +76,9 @@ class MainController:
                     self.error.show_error("MenuError")
 
     def check_second_menu(self):
-
+        """
+        function du second menu
+        """
         valid_choice = False
         while not valid_choice:
             try:
@@ -83,6 +87,7 @@ class MainController:
                 self.error.show_error("ValueError")
             else:
                 if second_menu == 1:
+                    # verifie s'il y a assez de joueurs dans le tournoi
                     if self.tournament.nb_player > len(self.tournament.id_players):
                         self.error.show_error("PlayerMissing")
                         print(f"({len(self.tournament.id_players)} / {self.tournament.nb_player})\n")
@@ -230,6 +235,7 @@ class MainController:
 
         list_tour = []
         id_players = []
+        list_player=[]
 
         self.tournament = Tournament(name,
                                      place,
@@ -239,7 +245,9 @@ class MainController:
                                      game_mod,
                                      description,
                                      nb_rounds,
-                                     nb_player)
+                                     nb_player,
+                                     list_player,
+                                     list_tour)
         self.tournament.__str__()
         self.list_tournament.append(self.tournament)
 
@@ -351,16 +359,14 @@ class MainController:
                     choice = self.set_player.menu_list_player("list")
                     if choice == "q":
                         self.check_second_menu()
-                    elif int(choice) in self.list_id:
+                    elif int(choice) in self.list_id and len(self.tournament.player) < self.tournament.nb_player:
                         for player in self.list_players:
-                            if player.id_player == int(choice) and len(self.tournament.player) < self.tournament.nb_player:
+                            if player.id_player == int(choice) and int(choice) not in self.tournament.id_players:
                                 self.tournament.id_players.append(int(choice))
                                 self.tournament.player.append(player)
-                                self.set_tournament.show('AddOk')
-                            else:
-                                self.set_tournament.show('AddNok')
+                        self.set_tournament.show('AddOk')
                     else:
-                        self.error.show_error("IndexError")
+                        self.error.show_error("AddNok")
                 except ValueError:
                     self.error.show_error("ValueError")
                 except TypeError:
@@ -377,7 +383,6 @@ class MainController:
             name = "Round" + str(i)
             list_matchs = []
             date_start = datetime.now()
-            date_start = date_start.strftime("%d/%m/%Y %H:%M:%S")
             date_end = None
             current_round = Tour(name, list_matchs, date_start, date_end)
             self.list_tour.append(current_round)
@@ -410,7 +415,9 @@ class MainController:
                 j1 = upper_player[i]
                 j2 = lower_player[i]
                 pair = f"{j1.id_player}/{j2.id_player}"
+                reverse_pair = f"{j2.id_player}/{j1.id_player}"
                 self.list_associate_player.append(pair)
+                self.list_associate_player.append(reverse_pair)
                 self.list_matchs.append(Match(upper_player[i], lower_player[i], 0, 0))
 
         # metode swiss pour les round suivant
@@ -425,37 +432,31 @@ class MainController:
                 for j in range(long - 1):
                     j1 = list_sort_players[j]
                     if j1 not in used_players:
-                        for k in range(long):
-                            if k > j:
-                                if rematch > 0:
-                                    j = j + rematch
-                                j2 = list_sort_players[k]
-                                if j2 not in used_players and j1 not in used_players and j1 != j2:
-                                    pair = f"{j1.id_player}/{j2.id_player}"
-                                    if pair not in self.list_associate_player:
-                                        self.list_associate_player.append(pair)
-                                        used_players.append(j1)
-                                        used_players.append(j2)
-                                        new_match = Match(j1, j2, 0, 0)
-                                        self.list_matchs.append(new_match)
+                        for k in range(rematch, long):
+                            j2 = list_sort_players[k]
+                            if j2 not in used_players and j1 not in used_players and j1 != j2:
+                                pair = f"{j1.id_player}/{j2.id_player}"
+                                reverse_pair = f"{j2.id_player}/{j1.id_player}"
+                                if pair not in self.list_associate_player:
+                                    self.list_associate_player.append(pair)
+                                    self.list_associate_player.append(reverse_pair)
+                                    used_players.append(j1)
+                                    used_players.append(j2)
+                                    new_match = Match(j1, j2, 0, 0)
+                                    self.list_matchs.append(new_match)
 
-                                    else:
-                                        pass
-                                else:
-                                    pass
-                            else:
-                                pass
-                    else:
-                        pass
                 if len(self.list_matchs) < nb_match:
+                    print(f"{rematch} : {len(self.list_matchs)} match trouvés")
                     for i in range(len(self.list_matchs)):
                         self.list_associate_player.pop()
+                        self.list_associate_player.pop()
                     self.list_matchs = []
-                    if rematch == 0:
-                        rematch = 1
-                    else:
-                        rematch += 1
+                    rematch += 1
+                    if rematch == 25:
+                        valid_match = True
+
                 else:
+                    # tournoi nb joueur impaire :
                     # si un joueur n'est pas utilisé dans les matchs du round,
                     for player in list_sort_players:
                         if player not in used_players:
@@ -483,20 +484,24 @@ class MainController:
         print("Pour chaque match ci dessous, taper le numéro du vainqueur\n"
               "Taper 3 en cas d'égalité")
         for match in matchs:
-            win = int(input(f"[1]-{match.player_1.name} VS [2]-{match.player_2.name} [3]-Egalite"))
-            if win == 1:
-                match.score_1 += 1
-                match.player_1.score += 1
-            elif win == 2:
-                match.score_2 += 1
-                match.player_2.score += 1
-            elif win == 3:
-                match.score_1 += 0.5
-                match.player_1.score += 0.5
-                match.score_2 += 0.5
-                match.player_2.score += 0.5
-            else:
-                print("Erreur de saisie")
+            while True:
+                win = (input(f"[1]-{match.player_1.name} VS [2]-{match.player_2.name} [3]-Egalite"))
+                if win == '1':
+                    match.score_1 += 1
+                    match.player_1.score += 1
+                    break
+                elif win == '2':
+                    match.score_2 += 1
+                    match.player_2.score += 1
+                    break
+                elif win == '3':
+                    match.score_1 += 0.5
+                    match.player_1.score += 0.5
+                    match.score_2 += 0.5
+                    match.player_2.score += 0.5
+                    break
+                else:
+                    print("Erreur de saisie")
 
     def close_round(self):
 
@@ -507,7 +512,6 @@ class MainController:
                 tour = self.list_tour[i]
                 if not tour.date_end:
                     tour.date_end = datetime.now()
-                    tour.date_end = tour.date_end.strftime("%d/%m/%Y %H:%M:%S")
                     end_tour = True
                 else:
                     i += 1
@@ -592,8 +596,8 @@ class MainController:
 
                 serialized_tour = {'name' : tour.name,
                                    'list_m' : serialized_matchs,
-                                   'date_s' : tour.date_start,
-                                   'date_e' : tour.date_end}
+                                   'date_s' : str(tour.date_start),
+                                   'date_e' : str(tour.date_end)}
                 serialized_tours.append(serialized_tour)
 
             serialized_tournament = {'name': tournament.name,
@@ -619,65 +623,84 @@ class MainController:
         tournaments_table = db.table('tournaments')
         serialized_players = players_table.all()
         serialized_tournaments = tournaments_table.all()
+        frm_date = '%Y-%m-%d %H:%M:%S'
+        i = 0
+        j = 0
 
         for serialized_player in serialized_players:
-            id = serialized_player['id']
-            name = serialized_player['name']
-            fname = serialized_player['family_name']
-            birth = serialized_player['birthday']
-            sex = serialized_player['sex']
-            rank = serialized_player['rank']
-            player = Player(id, fname, name, birth, sex, rank)
-            self.list_id.append(id)
-            self.list_players.append(player)
+            if serialized_player['id'] not in self.list_id:
+                id = serialized_player['id']
+                name = serialized_player['name']
+                fname = serialized_player['family_name']
+                birth = datetime.strptime(serialized_player['birthday'], frm_date)
+                sex = serialized_player['sex']
+                rank = serialized_player['rank']
+                player = Player(id, fname, name, birth, sex, rank)
+                self.list_id.append(id)
+                self.list_players.append(player)
+                i += 1
+
+        list_name_t = []
+        for tournament in self.list_tournament:
+            list_name_t.append(tournament.name)
 
         self.list_tour = []
         for serialized_tournament in serialized_tournaments:
+            if serialized_tournament['name'] not in list_name_t:
+                self.list_tour = []
+                for serialized_tour in serialized_tournament['list_tour']:
 
-            self.list_tour = []
-            for serialized_tour in serialized_tournament['list_tour']:
+                    self.list_matchs = []
+                    for serialized_match in serialized_tour['list_m']:
 
-                self.list_matchs = []
-                for serialized_match in serialized_tour['list_m']:
+                        p1_id = serialized_match['p1']
+                        p2_id = serialized_match['p2']
+                        s1 = serialized_match['s1']
+                        s2 = serialized_match['s2']
 
-                    p1_id = serialized_match['p1']
-                    p2_id = serialized_match['p2']
-                    s1 = serialized_match['s1']
-                    s2 = serialized_match['s2']
+                        for player1 in self.list_players:
+                            if player1.id_player == p1_id:
+                                p1 = player1
 
-                    for player1 in self.list_players:
-                        if player1.id_player == p1_id:
-                            p1 = player1
+                        for player2 in self.list_players:
+                            if player2.id_player == p2_id:
+                                p2 = player2
 
-                    for player2 in self.list_players:
-                        if player2.id_player == p2_id:
-                            p2 = player2
+                        match = Match(p1, p2, s1, s2)
+                        self.list_matchs.append(match)
 
-                    match = Match(p1, p2, s1, s2)
-                    self.list_matchs.append(match)
+                    name = serialized_tour['name']
+                    list_m = self.list_matchs
+                    date_s = datetime.strptime(serialized_tour['date_s'], frm_date)
+                    date_e = datetime.strptime(serialized_tour['date_e'], frm_date)
+                    tour = Tour(name, list_m, date_s, date_e)
+                    self.list_tour.append(tour)
 
-                name = serialized_tour['name']
-                list_m = self.list_matchs
-                date_s = serialized_tour['date_s']
-                date_e = serialized_tour['date_e']
-                tour = Tour(name, list_m, date_s, date_e)
-                self.list_tour.append(tour)
+                name = serialized_tournament['name']
+                place = serialized_tournament['place']
+                date_start = datetime.strptime(serialized_tournament['date_start'], frm_date)
+                date_end = datetime.strptime(serialized_tournament['date_end'], frm_date)
+                id_player = serialized_tournament['id_player']
+                game_mod = serialized_tournament['game_mod']
+                descr = serialized_tournament['descr']
+                list_tour = self.list_tour
+                nb_tours = serialized_tournament['nb_tours']
+                nb_player = serialized_tournament['nb_player']
+                result = serialized_tournament['result']
+                list_player = []
 
-            name = serialized_tournament['name']
-            place = serialized_tournament['place']
-            date_start = serialized_tournament['date_start']
-            date_end = serialized_tournament['date_end']
-            id_player = serialized_tournament['id_player']
-            game_mod = serialized_tournament['game_mod']
-            descr = serialized_tournament['descr']
-            list_tour = self.list_tour
-            nb_tours = serialized_tournament['nb_tours']
-            nb_player = serialized_tournament['nb_player']
-            result = serialized_tournament['result']
-            tournament = Tournament(name, place, date_start,
-                                    date_end, id_player, game_mod,
-                                    descr, nb_tours,
-                                    nb_player, result)
-            self.list_tournament.append(tournament)
+                for id in id_player:
+                    for player in self.list_players:
+                        if id == player.id_player:
+                            list_player.append(player)
 
-        print('Importation terminée')
+                tournament = Tournament(name, place, date_start,
+                                        date_end, id_player, game_mod,
+                                        descr, nb_tours,
+                                        nb_player, list_player, list_tour, result)
+                self.list_tournament.append(tournament)
+                j += 1
+
+        print(f"Importation terminée "
+              f"( {j} Tournoi(s) / "
+              f"{i} Joueur(s) )")

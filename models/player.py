@@ -1,3 +1,6 @@
+import datetime
+
+
 class Player:
     def __init__(self, id_player, family_name, name, birthday, sex, rank, score=0):
         self.id_player = id_player
@@ -9,11 +12,11 @@ class Player:
         self.score = score
 
     def __str__(self):
-        form = "{0:^8}{1:^10}{2:^10}{3:^12}{4:^3}{5:^4}"
+        form = "{0:^7}{1:^16}{2:^16}{3:^17}{4:^4}{5:^10}"
         return print(form.format(self.id_player,
                                  self.name,
                                  self.family_name,
-                                 self.birthday,
+                                 self.birthday.strftime("%d %b %Y"),
                                  self.sex,
                                  self.rank))
 

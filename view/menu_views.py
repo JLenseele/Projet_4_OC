@@ -12,10 +12,10 @@ class Menu:
               "||||||||||| CHESS TOURNAMENT |||||||||||\n"
               "========================================\n")
 
-    def main_menu(self):
+    def main_menu(self, tournament):
         menu_options = {
             1: 'Créer un nouveau tournoi',
-            2: 'Sélectionner un autre tournoi',
+            2: 'Sélectionner un tournoi',
             3: 'Générer les rapports',
             4: 'Créer des joueurs',
             5: 'Modification des classements (ligue)',
@@ -23,7 +23,10 @@ class Menu:
             7: 'Importer données',
             8: 'Quitter'
         }
-        print("\n Menu Principal")
+
+        if tournament:
+            print(f"\n[== Tournoi actuellement selectionné : {tournament.name} ==]")
+        print("---------------\n Menu Principal \n")
         for key in menu_options.keys():
             print(' ', key, '--', menu_options[key])
         choice = int(input(""))

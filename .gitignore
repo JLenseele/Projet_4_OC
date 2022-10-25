@@ -3,4 +3,4 @@ env/
 view/__pycache__/*
 models/__pycache__/*
 controler/__pycache__/*
-db.json
+*.json
