@@ -15,6 +15,7 @@ from operator import attrgetter
 from datetime import datetime
 from tinydb import TinyDB
 from math import floor
+from itertools import groupby
 
 
 GAME_MODE = ("bullet", "blitz", "fast")
@@ -35,7 +36,6 @@ class MainController:
 
         # listes du controller
         self.list_id = []
-        self.list_tour = []
         self.list_matchs = []
         self.list_tournament = []
         self.list_associate_player = []
@@ -390,7 +390,6 @@ class MainController:
             date_start = datetime.strftime(datetime.now(), frm)
             date_end = None
             current_round = Tour(name, list_matchs, date_start, date_end)
-            self.list_tour.append(current_round)
             self.tournament.list_tour.append(current_round)
 
     def create_match(self, method):
@@ -406,11 +405,11 @@ class MainController:
         self.tournament.player.sort(key=attrgetter('score'), reverse=True)
 
         # puis triage des joueurs par rank, pour les joueurs ayant le meme score
-        low_list = [list(v) for k, v in itertools.groupby(self.tournament.player)]
-        for player in low_list:
-            player.sort(key=attrgetter('rank'))
-            for u in player:
-                # incremente une liste trié pour le round a venir
+        sorted_players = sorted(self.tournament.player, key=attrgetter('score'),reverse=True)
+        grouped = [list(result) for key, result in groupby(sorted_players, key=attrgetter('score'))]
+        for i in grouped:
+            i.sort(key=attrgetter('rank'))
+            for u in i:
                 list_sort_players.append(u)
 
         # method split utilisé pour le premier round
@@ -477,7 +476,7 @@ class MainController:
         set_dateend = False
         i = 0
         while not set_dateend:
-            tour = self.list_tour[i]
+            tour = self.tournament.list_tour[i]
             if not tour.date_end:
                 tour.list_matchs = self.list_matchs
                 tour.__str__()
@@ -514,8 +513,8 @@ class MainController:
         end_tour = False
         i = 0
         while not end_tour:
-            if i < len(self.list_tour):
-                tour = self.list_tour[i]
+            if i < len(self.tournament.list_tour):
+                tour = self.tournament.list_tour[i]
                 if not tour.date_end:
                     tour.date_end = datetime.strftime(datetime.now(), frm)
                     end_tour = True
@@ -573,8 +572,6 @@ class MainController:
 
         serialized_players = []
         serialized_tournaments = []
-        serialized_tours = []
-        serialized_matchs = []
 
         # serialized de la liste complète des joueurs
         for player in self.list_players:
@@ -590,8 +587,10 @@ class MainController:
         # serialized de la liste des tournois
         for tournament in self.list_tournament:
             #serialized de la liste des tours d'un tournoi
+            serialized_tours = []
             for tour in tournament.list_tour:
                 #serialized de la liste des matchs d'un tour
+                serialized_matchs = []
                 for match in tour.list_matchs:
 
                     serialized_match = {'p1' : match.player_1.id_player,
@@ -652,10 +651,10 @@ class MainController:
 
         for serialized_tournament in serialized_tournaments:
             if serialized_tournament['name'] not in list_name_t:
-                self.list_tour = []
+                list_tour = []
                 for serialized_tour in serialized_tournament['list_tour']:
 
-                    self.list_matchs = []
+                    list_matchs = []
                     for serialized_match in serialized_tour['list_m']:
 
                         p1_id = serialized_match['p1']
@@ -672,14 +671,14 @@ class MainController:
                                 p2 = player2
 
                         match = Match(p1, p2, s1, s2)
-                        self.list_matchs.append(match)
+                        list_matchs.append(match)
 
                     name = serialized_tour['name']
-                    list_m = self.list_matchs
+                    list_m = list_matchs
                     date_s = datetime.strptime(serialized_tour['date_s'], frm_date)
                     date_e = datetime.strptime(serialized_tour['date_e'], frm_date)
                     tour = Tour(name, list_m, date_s, date_e)
-                    self.list_tour.append(tour)
+                    list_tour.append(tour)
 
                 name = serialized_tournament['name']
                 place = serialized_tournament['place']
@@ -688,7 +687,7 @@ class MainController:
                 id_player = serialized_tournament['id_player']
                 game_mod = serialized_tournament['game_mod']
                 descr = serialized_tournament['descr']
-                list_tour = self.list_tour
+                list_tour = list_tour
                 nb_tours = serialized_tournament['nb_tours']
                 nb_player = serialized_tournament['nb_player']
                 result = serialized_tournament['result']

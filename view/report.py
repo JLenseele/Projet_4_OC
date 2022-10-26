@@ -52,4 +52,3 @@ class Report:
                 print("#", tour.name)
                 for match in tour.list_matchs:
                     match.__str__()
-
