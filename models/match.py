@@ -16,4 +16,5 @@ class Match:
         self.score_2 = second_score
 
     def __str__(self):
-        return ([self.player_1.id_player, self.score_1], [self.player_2.id_player, self.score_2])
+        return print([self.player_1.id_player, self.score_1],
+                     [self.player_2.id_player, self.score_2])

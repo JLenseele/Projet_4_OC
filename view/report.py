@@ -47,10 +47,9 @@ class Report:
             for player in tournament.player:
                 player.__str__()
 
-            print(f"Liste Rounds et Matchs du tournoi :")
+            print(f"\nListe Rounds et Matchs du tournoi :\n")
             for tour in tournament.list_tour:
                 print("#", tour.name)
                 for match in tour.list_matchs:
-                    print("  -")
                     match.__str__()
 

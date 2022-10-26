@@ -22,3 +22,7 @@ class Player:
 
     def set_list_id(self):
         return self.id_player
+
+    def score_reset(self):
+        self.score = 0
+        return

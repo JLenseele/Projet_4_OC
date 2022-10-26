@@ -139,6 +139,10 @@ class MainController:
                         self.error.show_error("MenuError")
             i += 1
         self.tournament.result = (self.menu.show_result(self.tournament.player))
+
+        for player in self.tournament.player:
+            player.score_reset()
+
         self.tournament = None
         self.run()
 
@@ -376,13 +380,14 @@ class MainController:
             self.check_second_menu()
 
     def create_tour(self):
-
+        frm = '%Y-%m-%d %H:%M:%S'
         i = 0
         while i < self.tournament.nb_tours:
+
             i += 1
             name = "Round" + str(i)
             list_matchs = []
-            date_start = datetime.now()
+            date_start = datetime.strftime(datetime.now(), frm)
             date_end = None
             current_round = Tour(name, list_matchs, date_start, date_end)
             self.list_tour.append(current_round)
@@ -504,6 +509,7 @@ class MainController:
                     print("Erreur de saisie")
 
     def close_round(self):
+        frm = '%Y-%m-%d %H:%M:%S'
 
         end_tour = False
         i = 0
@@ -511,7 +517,7 @@ class MainController:
             if i < len(self.list_tour):
                 tour = self.list_tour[i]
                 if not tour.date_end:
-                    tour.date_end = datetime.now()
+                    tour.date_end = datetime.strftime(datetime.now(), frm)
                     end_tour = True
                 else:
                     i += 1
@@ -644,7 +650,6 @@ class MainController:
         for tournament in self.list_tournament:
             list_name_t.append(tournament.name)
 
-        self.list_tour = []
         for serialized_tournament in serialized_tournaments:
             if serialized_tournament['name'] not in list_name_t:
                 self.list_tour = []

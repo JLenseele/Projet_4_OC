@@ -25,5 +25,5 @@ class Tour:
         print(f"--- {self.name} ------------------------------------------\n"
               f"** Liste des matchs à jouer **\n"
               f"{show_match}\n"
-              f"-- Démarrage : {self.date_start.strftime(frm)} -----")
+              f"-- Démarrage : {self.date_start} -----")
 
