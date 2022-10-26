@@ -3,16 +3,17 @@ from operator import attrgetter
 
 class Menu:
 
-
     def __init__(self):
         self.present()
 
-    def present(self):
+    @staticmethod
+    def present():
         print("========================================\n"
               "||||||||||| CHESS TOURNAMENT |||||||||||\n"
               "========================================\n")
 
-    def main_menu(self, tournament):
+    @staticmethod
+    def main_menu(tournament):
         menu_options = {
             1: 'Créer un nouveau tournoi',
             2: 'Sélectionner un tournoi',
@@ -32,7 +33,8 @@ class Menu:
         choice = int(input(""))
         return choice
 
-    def second_menu(self):
+    @staticmethod
+    def second_menu():
         menu_options = {
             1: 'Démarrer le tournoi',
             2: 'Inscription nouveau joueur au tournoi',
@@ -45,10 +47,12 @@ class Menu:
         choice = int(input(""))
         return choice
 
-    def second_menu_option(self):
+    @staticmethod
+    def second_menu_option():
         return int(input("Combien de joueurs voulez vous inscrire ? "))
 
-    def resolution(self):
+    @staticmethod
+    def resolution():
         menu_options = {
             1: 'Cloturer le round',
             2: 'Quitter'
@@ -59,15 +63,16 @@ class Menu:
         choice = int(input(""))
         return choice
 
-    def show_result(self, list_players):
+    @staticmethod
+    def show_result(list_players):
 
         form = "{0:^10}{1:^10}{2:^15}{3:^15}{4:^5}"
         results = []
 
-        print(f"=============================\n"
-              f"Tournoi terminé\n"
-              f"Classement final :\n")
-        print(f"Classement / Score /       Nom      /      Prénom     /  Classement(ligue)")
+        print("=============================\n"
+              "Tournoi terminé\n"
+              "Classement final :\n")
+        print("Classement / Score /       Nom      /      Prénom     /  Classement(ligue)")
 
         list_players.sort(key=attrgetter('score'), reverse=True)
         i = 1
@@ -83,7 +88,8 @@ class Menu:
             i += 1
         return results
 
-    def menu_report(self):
+    @staticmethod
+    def menu_report():
         menu_options = {
             1: 'Rapport de tous les joueurs (Ordre alphabetique)',
             2: 'Rapport de tous les joueurs (Classement)',

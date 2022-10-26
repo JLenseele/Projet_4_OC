@@ -1,6 +1,3 @@
-import datetime
-
-
 class Player:
     def __init__(self, id_player, family_name, name, birthday, sex, rank, score=0):
         self.id_player = id_player
