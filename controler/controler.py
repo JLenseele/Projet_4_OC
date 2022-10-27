@@ -13,7 +13,7 @@ from datetime import datetime
 from tinydb import TinyDB
 from math import floor
 from itertools import groupby
-from random import random
+from random import random, randint
 
 
 GAME_MODE = ("bullet", "blitz", "fast")
@@ -285,9 +285,9 @@ class MainController:
         """
         instances = self.menu.second_menu_option()
         for instance in range(instances):
-            id_player = random.randint(10000, 99999)
+            id_player = randint(10000, 99999)
             while id_player in self.list_id:
-                id_player = random.randint(10000, 99999)
+                id_player = randint(10000, 99999)
 
             valid_fname = False
             while not valid_fname:
@@ -411,7 +411,9 @@ class MainController:
 
         # puis triage des joueurs par rank, pour les joueurs ayant le meme score
         sorted_players = sorted(self.tournament.player, key=attrgetter('score'), reverse=True)
+        # regroupement des joueurs avec le meme score dans des sous liste
         grouped = [list(result) for key, result in groupby(sorted_players, key=attrgetter('score'))]
+
         for i in grouped:
             i.sort(key=attrgetter('rank'))
             for u in i:
@@ -439,27 +441,48 @@ class MainController:
                 # reinitialise la liste des joueurs utilisés pour le round suivant
                 used_players = []
                 for j in range(long - 1):
+                    # Selection du 1er joueur
                     j1 = list_sort_players[j]
                     if j1 not in used_players:
                         for k in range(rematch, long):
+                            # selection du 2eme joueur
                             j2 = list_sort_players[k]
+
+                            # si les deux joueurs ne sont pas déja affectés à un autre match
+                            # et sont différent :
                             if j2 not in used_players and j1 not in used_players and j1 != j2:
+                                # on associe les joueurs dans "pair"
                                 pair = f"{j1.id_player}/{j2.id_player}"
+                                # et dans la "pair" inverse
                                 reverse_pair = f"{j2.id_player}/{j1.id_player}"
-                                if pair not in self.list_associate_player:
+
+                                # Si la pair ou reverse pair n'existe pas déja :
+                                if pair not in self.list_associate_player and reverse_pair not in self.list_associate_player:
+
+                                    # Ajout des pair dans une liste
                                     self.list_associate_player.append(pair)
                                     self.list_associate_player.append(reverse_pair)
+                                    # Ajout des joueurs utilisés dans une autre liste
                                     used_players.append(j1)
                                     used_players.append(j2)
+                                    # Creation du match
                                     new_match = Match(j1, j2, 0, 0)
+                                    # Ajout du match dans la liste des matchs du controller
                                     self.list_matchs.append(new_match)
 
+                # S'il n'y a pas assez de match trouvés :
                 if len(self.list_matchs) < nb_match:
                     print(f"{rematch} : {len(self.list_matchs)} match trouvés")
+
+                    # Suppression des pair et reverse trouvés
                     for i in range(len(self.list_matchs)):
                         self.list_associate_player.pop()
                         self.list_associate_player.pop()
+                    # Reinitialisation de la liste des matchs
                     self.list_matchs = []
+
+                    # rematch s'incremente pour lancer une nouvelle recherche
+                    # de match avec +1 dans la boucle for J2
                     rematch += 1
                     if rematch == 25:
                         valid_match = True
@@ -474,6 +497,7 @@ class MainController:
                             used_players.append(player)
                     valid_match = True
 
+        # ajout des matchs dans le round en cour
         self.add_match_to_round()
 
     def add_match_to_round(self):
@@ -648,7 +672,7 @@ class MainController:
                 sex = serialized_player['sex']
                 rank = serialized_player['rank']
                 player = Player(id_player, fname, name, birth, sex, rank)
-                self.list_id.append(id)
+                self.list_id.append(id_player)
                 self.list_players.append(player)
                 i += 1
 
