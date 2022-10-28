@@ -1,7 +1,7 @@
 class SetPlayer:
 
     def __init__(self):
-        self.dict_player = {"Family_name": "Nom : ",
+        self.dict_player = {"F_name": "Nom : ",
                             "Birthday": "Date de naissance DD/MM/YYYY : ",
                             "Name": "Prénom : ",
                             "Sex": "Genre (M/F) : ",

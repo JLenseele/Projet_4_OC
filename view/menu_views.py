@@ -1,6 +1,3 @@
-from operator import attrgetter
-
-
 class Menu:
 
     def __init__(self):
@@ -55,7 +52,8 @@ class Menu:
     def resolution():
         menu_options = {
             1: 'Cloturer le round',
-            2: 'Quitter'
+            2: 'Afficher le classement provisoire',
+            3: 'Retour - Menu Principal'
         }
         print("Une fois les matchs terminés, cloturez le round pour saisir les résultats")
         for key in menu_options.keys():
@@ -64,36 +62,12 @@ class Menu:
         return choice
 
     @staticmethod
-    def show_result(list_players):
-
-        form = "{0:^10}{1:^10}{2:^15}{3:^15}{4:^5}"
-        results = []
-
-        print("=============================\n"
-              "Tournoi terminé\n"
-              "Classement final :\n")
-        print("Classement / Score /       Nom      /      Prénom     /  Classement(ligue)")
-
-        list_players.sort(key=attrgetter('score'), reverse=True)
-        i = 1
-
-        for player in list_players:
-            print(form.format(i,
-                              player.score,
-                              player.name,
-                              player.family_name,
-                              player.rank,))
-            line = [i, player.score, player.id_player, player.name, player.family_name]
-            results.append(line)
-            i += 1
-        return results
-
-    @staticmethod
     def menu_report():
         menu_options = {
             1: 'Rapport de tous les joueurs (Ordre alphabetique)',
             2: 'Rapport de tous les joueurs (Classement)',
-            3: 'Liste de tous les tournois'
+            3: 'Liste de tous les tournois',
+            4: "Rapport complet d'un tournoi"
         }
         for key in menu_options.keys():
             print(' ', key, '--', menu_options[key])

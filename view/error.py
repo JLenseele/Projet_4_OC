@@ -11,12 +11,14 @@ class Error:
                                          "Le format doit etre de type : DD/MM/YYYY",
                            "DateEnd": "La date de fin de tournoi ne peut etre antérieure"
                                       "à la date de démarrage du tournoi",
+                           "TooMuchPlayer": "Il ne peut y avoir plus de 20 joueurs dans un tournoi",
                            "ModTournament": "Ce mod de jeu n'existe pas",
                            "DescTournament": "La description est trop courte",
                            "Gender": "Erreur de saisie -> M ou F ",
-                           "TooLong": "Ce parametre est trop long",
+                           "NamePlayer": "Le nom du joueur est trop court",
+                           "TooLong": "Ce parametre est trop long (+40 caract)",
                            "NoNb": "Ce parametre ne doit pas contenir de nombre",
-                           "MoreRoundThanPlayer": "Il ne peut y avoir plus de tours que de joueurs"
+                           "TooMuchRounds": "Il ne peut y avoir plus de tours que de joueurs"
                                                   "(Max rounds = Nombre de joueurs - 1)",
                            "PlayerMissing": "Il manque des joueurs pour démarrer le tournoi",
                            "NoPlayer": "Aucun joueur créé",

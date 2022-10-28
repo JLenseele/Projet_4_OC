@@ -3,6 +3,9 @@ from operator import attrgetter
 
 class Report:
 
+    def __init__(self):
+        self.report = None
+
     @staticmethod
     def prompt_report(tournaments, players, rapport):
 
@@ -11,16 +14,13 @@ class Report:
             return
 
         if rapport == 1:
-            players.sort(key=attrgetter('name'))
-            print("   ID  /      NOM      /     PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
-            for player in players:
-                player.__str__()
+            Report.prompt_classement(players, 'name')
         elif rapport == 2:
-            players.sort(key=attrgetter('rank'))
-            print("   ID  /      NOM      /     PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
-            for player in players:
-                player.__str__()
+            Report.prompt_classement(players, 'rank')
         elif rapport == 3:
+            Report.prompt_tournament(tournaments, 'name')
+        elif rapport == 4:
+
             tournaments.sort(key=attrgetter('name'))
             i = 1
             for tournament in tournaments:
@@ -28,28 +28,64 @@ class Report:
                 tournament.__str__()
                 i += 1
 
-            choice = input("Vous pouvez choisir le numéro d'un tournoi pour voir les détails")
+            choice = input("Choisissez le numéro d'un tournoi pour afficher les détails")
             tournament = tournaments[int(choice) - 1]
             print(f"====================================================\n"
-                  f"- Détail du tournoi {tournament.name} :\n"
-                  f"\n"
-                  f"Liste des participants (ordre alphabétique) :\n"
-                  f"   ID  /      NOM      /     PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
+                  f"- Détail du tournoi {tournament.name} :\n")
 
-            tournament.player.sort(key=attrgetter('name'))
-            list_player = [i for i in tournament.player if i is not None]
-            for player in list_player:
-                player.__str__()
+            print("Liste des participants (ordre alphabétique) :")
+            Report.prompt_classement(tournament.player, 'name')
 
-            print("\nListe des participants (par classement) :\n"
-                  "   ID  /      NOM      /     PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
-
-            tournament.player.sort(key=attrgetter('rank'))
-            for player in tournament.player:
-                player.__str__()
+            print("\nListe des participants (par classement) :")
+            Report.prompt_classement(tournament.player, 'rank')
 
             print("\nListe Rounds et Matchs du tournoi :\n")
             for tour in tournament.list_tour:
                 print("#", tour.name)
                 for match in tour.list_matchs:
                     match.__str__()
+
+    @staticmethod
+    def prompt_classement(players, attr):
+
+        players.sort(key=attrgetter(attr))
+        print("   ID  /      NOM      /     PRENOM    / DATE NAISSANCE / G /Classement(ligue)")
+        for player in players:
+            player.__str__()
+
+    @staticmethod
+    def prompt_tournament(tournaments, attr):
+
+        tournaments.sort(key=attrgetter(attr))
+        for tournament in tournaments:
+            tournament.__str__()
+
+    @staticmethod
+    def prompt_result(tournament):
+
+        list_players = tournament.player
+        form = "{0:^10}{1:^10}{2:^17}{3:^18}{4:^10}"
+        results = []
+
+        print("=============================\n")
+        if not tournament.open:
+            print("Tournoi terminé\n"
+                  "Classement Final :\n")
+        else:
+            print("Classement provisoire :\n")
+
+        print("Classement / Score /       Nom      /      Prénom     /  Classement(ligue)")
+
+        list_players.sort(key=attrgetter('score'), reverse=True)
+        i = 1
+
+        for player in list_players:
+            print(form.format(i,
+                              player.score,
+                              player.name,
+                              player.family_name,
+                              player.rank,))
+            line = [i, player.score, player.id_player, player.name, player.family_name]
+            results.append(line)
+            i += 1
+        return results

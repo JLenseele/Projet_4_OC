@@ -7,10 +7,13 @@ class SetTournament:
                                 "Date_end": "Entrer la date de fin du tournoi (DD/MM/YYYY): ",
                                 "Game_mod": "Entrer le mode de jeu \n"
                                             " bullet / blitz / fast : ",
-                                "Number_player": "Entrer le nombre de participants : ",
-                                "Number_rounds": "Entrer le nombre de rounds : ",
-                                "Description": "Entrer un description du tournoi : ",
-                                "AddOk": "=== Inscription au tournoi OK"}
+                                "Nb_player": "Entrer le nombre de participants : ",
+                                "Nb_rounds": "Entrer le nombre de rounds : ",
+                                "Description": "Entrer une description du tournoi : ",
+                                "AddOk": "=== Inscription au tournoi OK",
+                                "Tournament_end": "Ce tournoi est terminé.",
+                                "Open": "Un autre tournoi est déja en cour. Terminez ce tournoi "
+                                        "avant d'en démarrer un nouveau."}
 
     def write(self, attr):
         return input(self.dict_tournament[attr])
