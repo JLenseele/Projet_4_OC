@@ -79,7 +79,7 @@ class MainController:
 
     def check_second_menu(self):
         """
-        function du second menu
+        Function du second menu
         """
         valid_choice = False
         while not valid_choice:
@@ -119,12 +119,12 @@ class MainController:
 
     def create_tournament(self):
         """
-        Recupère et valide les inputs users
+        Récupère et valide les inputs users
         Instancie un nouveau tournoi
         """
         name = self.input_str_validation('tournament', 'Name', 'NameTournament')
         place = self.input_str_validation('tournament', 'Place', 'PlaceTournament')
-        date_start = self.input_date_validation('Tournament', 'Date_start', 'DateFormat')
+        date_start = self.input_date_validation('tournament', 'Date_start', 'DateFormat')
         date_end = self.input_date_validation('tournament', 'Date_end', 'DateFormat', date_start)
         game_mod = self.input_str_validation('tournament', 'Game_mod', 'ModTournament')
         nb_player = self.input_int_validation('tournament', 'Nb_player', 'TooMuchPlayer')
@@ -145,19 +145,29 @@ class MainController:
         self.check_second_menu()
 
     def start_tournament(self):
-        """  Dirige le déroulement d'un tournoi du début a la fin.
+        """  Dirige le déroulement d'un tournoi du début à la fin.
 
-        Creer les rounds du tournoi lancé
+        Créer les rounds du tournoi lancé
         Défini la méthode de pairs
         Affiche le menu des resolutions de rounds
         Clos le tournoi
-        Recupere les resultats
-        Reset les score
+        Récupère les résultats
+        Reset les scores
         Retour au menu principal
         """
-        self.create_tour()
+
+        # Création des tours si le tournoi vient d'être créé
+        if self.tournament.list_tour == []:
+            self.create_tour()
+
         i = 0
-        while i < self.tournament.nb_tours:
+        tour_restant = 0
+        # Détermine le nombre de tours restant à jouer
+        for tour in self.tournament.list_tour:
+            if not tour.date_end:
+                tour_restant += 1
+
+        while i < tour_restant:
 
             if i == 0:
                 method = 'split'
@@ -187,6 +197,7 @@ class MainController:
             i += 1
         self.tournament.open = 'End'
         self.tournament.result = (self.report.prompt_result(self.tournament))
+        self.states = None
 
         for player in self.tournament.player:
             player.score_reset()
@@ -195,7 +206,7 @@ class MainController:
         self.run()
 
     def pick_tournament(self):
-        """Permet de séléctionner un tournoi depuis la liste des tournois"""
+        """Permet de sélectionner un tournoi depuis la liste des tournois"""
         pick = int(self.set_tournament.show_list_tournament(self.list_tournament)) - 1
         if pick > -1:
             try:
@@ -217,8 +228,8 @@ class MainController:
 
     def create_player(self):
         """Instancie un nouveau joueur
-        pour l'ajouter a la liste global des joueurs et
-        au tournoi en cour s'il y en a un
+        pour l'ajouter à la liste globale des joueurs et
+        au tournoi en cours s'il y en a un
         """
         instances = self.menu.second_menu_option()
         for instance in range(instances):
@@ -226,7 +237,7 @@ class MainController:
             while id_player in self.list_id:
                 id_player = randint(10000, 99999)
 
-            # Validation des input pour chaque attribut
+            # Validation des inputs pour chaque attribut
             f_name = self.input_str_validation('player', 'F_name', 'TooLong')
             name = self.input_str_validation('player', 'Name', 'TooLong')
             date_birth = self.input_date_validation('player', 'Birthday', 'DateFormat')
@@ -254,9 +265,9 @@ class MainController:
                 self.error.show_error('AddNok2')
 
     def add_player(self):
-        """ Permet d'ajouter des joueurs de la liste global au tournoi en cour
+        """ Permet d'ajouter des joueurs de la liste globale au tournoi en cour
 
-        - affiche la liste global des joueurs qui ne sont pas présent dans le tournoi
+        - affiche la liste globale des joueurs qui ne sont pas présent dans le tournoi
         - input id joueur pour l'ajouter au tournoi
         - Q pour quitter
         """
@@ -305,13 +316,13 @@ class MainController:
             self.tournament.list_tour.append(current_round)
 
     def create_match(self, method):
-        """ Instancie tout les matchs du round à venir """
+        """ Instancie tous les matchs du round à venir """
 
         # reinitialise la liste des matchs pour en ajouter de nouveaux au round suivant
         self.list_matchs = []
         # reinitialise la liste des joueurs triés
         list_sort_players = []
-        # determine le nombre de match a créer (1 round = 1 match par joueur)
+        # determine le nombre de matchs à créer (1 round = 1 match par joueur)
         nb_match = floor(len(self.tournament.player) / 2)
 
         # Triage des joueurs par score
@@ -327,7 +338,7 @@ class MainController:
             for u in i:
                 list_sort_players.append(u)
 
-        # method split utilisé pour le premier round
+        # methode utilisé pour le premier round
         if method == "split":
             upper_player, lower_player = self.split_player(list_sort_players)
             for i in range(int(nb_match)):
@@ -339,7 +350,7 @@ class MainController:
                 self.list_associate_player.append(reverse_pair)
                 self.list_matchs.append(Match(upper_player[i], lower_player[i], 0, 0))
 
-        # metode swiss pour les round suivant
+        # methode pour les rounds suivants
         elif method == "swiss":
             long = int(len(list_sort_players))
             valid_match = False
@@ -353,22 +364,22 @@ class MainController:
                     j1 = list_sort_players[j]
                     if j1 not in used_players:
                         for k in range(rematch, long):
-                            # selection du 2eme joueur
+                            # selection du 2ᵉ joueur
                             j2 = list_sort_players[k]
 
-                            # si les deux joueurs ne sont pas déja affectés à un autre match
-                            # et sont différent :
+                            # si les deux joueurs ne sont pas deja affectés à un autre match
+                            # et sont différents :
                             if j2 not in used_players and j1 not in used_players and j1 != j2:
-                                # on associe les joueurs dans "pair"
+                                # on associe les joueurs dans "pair."
                                 pair = f"{j1.id_player}/{j2.id_player}"
                                 # et dans la "pair" inverse
                                 reverse_pair = f"{j2.id_player}/{j1.id_player}"
 
-                                # Si la pair ou reverse pair n'existe pas déja :
+                                # Si la paire ou reverse paire n'existe pas deja :
                                 if pair not in self.list_associate_player and \
                                         reverse_pair not in self.list_associate_player:
 
-                                    # Ajout des pair dans une liste
+                                    # Ajout des pairs dans une liste
                                     self.list_associate_player.append(pair)
                                     self.list_associate_player.append(reverse_pair)
                                     # Ajout des joueurs utilisés dans une autre liste
@@ -379,29 +390,29 @@ class MainController:
                                     # Ajout du match dans la liste des matchs du controller
                                     self.list_matchs.append(new_match)
 
-                # S'il n'y a pas assez de match trouvés :
+                # S'il n'y a pas assez de match trouvé :
                 if len(self.list_matchs) < nb_match:
                     print(f"{rematch} : {len(self.list_matchs)} match trouvés")
 
-                    # Suppression des pair et reverse trouvés
+                    # Suppression des pairs et reverse trouvés
                     for i in range(len(self.list_matchs)):
                         self.list_associate_player.pop()
                         self.list_associate_player.pop()
                     # Reinitialisation de la liste des matchs
                     self.list_matchs = []
 
-                    # rematch s'incremente pour lancer une nouvelle recherche
+                    # rematch s'incrémente pour lancer une nouvelle recherche
                     # de match avec +1 dans la boucle for J2
                     rematch += 1
                     if rematch == 25:
                         valid_match = True
 
                 else:
-                    # tournoi nb joueur impaire :
+                    # tournoi nb joueur impair :
                     # si un joueur n'est pas utilisé dans les matchs du round,
                     for player in list_sort_players:
                         if player not in used_players:
-                            # alors il gagne un point
+                            # alors, il gagne un point
                             player.score += 1
                             used_players.append(player)
                     valid_match = True
@@ -429,7 +440,7 @@ class MainController:
               "Taper 3 en cas d'égalité")
         for match in matchs:
             while True:
-                win = (input(f"[1]-{match.player_1.name} VS [2]-{match.player_2.name} [3]-Egalite"))
+                win = (input(f"[1]- {match.player_1.name} VS [2]- {match.player_2.name} [3]- Égalité : "))
                 if win == '1':
                     match.score_1 += 1
                     match.player_1.score += 1
@@ -532,7 +543,7 @@ class MainController:
 
         # serialized de la liste des tournois
         for tournament in self.list_tournament:
-            # s erialized de la liste des tours d'un tournoi
+            # serialized de la liste des tours d'un tournoi
             serialized_tours = []
             for tour in tournament.list_tour:
                 # serialized de la liste des matchs d'un tour
@@ -570,7 +581,7 @@ class MainController:
         print('Enregistrement terminé')
 
     def deserialized(self):
-        """ Instancie tout les joueurs / tournoi du fichier de sauvegarde .JSON"""
+        """ Instancie tous les joueurs / tournoi du fichier de sauvegarde JSON"""
         file_name = input('Nom du fichier de sauvegarde :')
         db = TinyDB(file_name + '.json')
         players_table = db.table('players')
@@ -664,11 +675,10 @@ class MainController:
               f"{i} Joueur(s) )")
 
     def input_str_validation(self, objet, attr, error):
-        """ Validation des input type str
-        :param objet: player ou tournament
-        :param attr: attribut de l'objet
-        :param error: msg d'erreur lié à l'attribut
-        :param condition: comparaison avec un autre attribut
+        """ Validation des inputs type str
+        : param objet : player ou tournament
+        : param attr : attribut de l'objet
+        : param error : msg d'erreur liée à l'attribut
         """
         valid_input = False
         while not valid_input:
@@ -681,7 +691,6 @@ class MainController:
                 elif attr == 'Sex' and attribute not in GENDER:
                     self.error.show_error("Gender")
                 else:
-                    valid_input = True
                     return attribute
             else:
                 attribute = self.set_tournament.write(attr)
@@ -690,15 +699,14 @@ class MainController:
                 elif len(attribute) < 3:
                     self.error.show_error(error)
                 else:
-                    valid_input = True
                     return attribute
 
     def input_date_validation(self, objet, attr, error, condition=None):
-        """ Validation des input de type Date
-        :param objet: player ou tournament
-        :param attr: attribut de l'objet
-        :param error: msg d'erreur lié à l'attribut
-        :param condition: comparaison avec un autre attribut
+        """ Validation des inputs de type Date
+        : param objet : player ou tournament
+        : param attr : attribut de l'objet
+        : param error : msg d'erreur liée à l'attribut
+        : param condition : comparaison avec un autre attribut
         """
         valid_input = False
         date_format = "%d/%m/%Y"
@@ -722,11 +730,11 @@ class MainController:
                     return attribute
 
     def input_int_validation(self, objet, attr, error, condition=None):
-        """ Validation des input type int
-        :param objet: player ou tournament
-        :param attr: attribut de l'objet
-        :param error: msg d'erreur lié à l'attribut
-        :param condition: comparaison avec un autre attribut
+        """ Validation des inputs type int
+        : param objet : player ou tournament
+        : param attr : attribut de l'objet
+        : param error : msg d'erreur liée à l'attribut
+        : param condition : comparaison avec un autre attribut
         """
         valid_input = False
 
