@@ -19,7 +19,7 @@ class Error:
                            "TooLong": "Ce parametre est trop long (+40 caract)",
                            "NoNb": "Ce parametre ne doit pas contenir de nombre",
                            "TooMuchRounds": "Il ne peut y avoir plus de tours que de joueurs"
-                                                  "(Max rounds = Nombre de joueurs - 1)",
+                                            "(Max rounds = Nombre de joueurs - 1)",
                            "PlayerMissing": "Il manque des joueurs pour démarrer le tournoi",
                            "NoPlayer": "Aucun joueur créé",
                            "AddNok": "=== Le tournoi en cour est plein. "

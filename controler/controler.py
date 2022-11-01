@@ -157,7 +157,7 @@ class MainController:
         """
 
         # Création des tours si le tournoi vient d'être créé
-        if self.tournament.list_tour == []:
+        if not self.tournament.list_tour:
             self.create_tour()
 
         i = 0
