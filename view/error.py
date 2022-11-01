@@ -25,7 +25,8 @@ class Error:
                            "AddNok": "=== Le tournoi en cour est plein. "
                                      "(Joueur enregistré dans la base de données global)",
                            "AddNok2": "=== Pas de tournoi en cour."
-                                      " (Joueur enregistré dans la base de données global)"}
+                                      " (Joueur enregistré dans la base de données global)",
+                           "DontExist": "Ce joueur n'existe pas"}
 
     def show_error(self, error):
         return print(self.dict_error[error])

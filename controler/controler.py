@@ -156,24 +156,18 @@ class MainController:
         Retour au menu principal
         """
 
-        # Création des tours si le tournoi vient d'être créé
-        if not self.tournament.list_tour:
-            self.create_tour()
 
-        i = 0
-        tour_restant = 0
         # Détermine le nombre de tours restant à jouer
-        for tour in self.tournament.list_tour:
-            if not tour.date_end:
-                tour_restant += 1
+        i = len(self.tournament.list_tour)
 
-        while i < tour_restant:
+        while i < self.tournament.nb_tours:
 
             if i == 0:
                 method = 'split'
             else:
                 method = 'swiss'
 
+            self.create_tour(i)
             self.create_match(method)
             matchs = self.list_matchs
 
@@ -283,16 +277,18 @@ class MainController:
                     choice = self.set_player.menu_list_player("list")
                     if choice == "q":
                         self.check_second_menu()
-                    elif int(choice) in self.list_id and\
-                            len(self.tournament.player) < self.tournament.nb_player:
-                        for player in self.list_players:
-                            if player.id_player == int(choice) and\
-                                    int(choice) not in self.tournament.id_players:
-                                self.tournament.id_players.append(int(choice))
-                                self.tournament.player.append(player)
-                        self.set_tournament.show('AddOk')
+                    elif int(choice) in self.list_id:
+                        if len(self.tournament.player) < self.tournament.nb_player:
+                            for player in self.list_players:
+                                if player.id_player == int(choice) and\
+                                        int(choice) not in self.tournament.id_players:
+                                    self.tournament.id_players.append(int(choice))
+                                    self.tournament.player.append(player)
+                            self.set_tournament.show('AddOk')
+                        else:
+                            self.error.show_error("AddNok")
                     else:
-                        self.error.show_error("AddNok")
+                        self.error.show_error("DontExist")
                 except ValueError:
                     self.error.show_error("ValueError")
                 except TypeError:
@@ -301,19 +297,16 @@ class MainController:
             self.error.show_error("NoPlayer")
             self.check_second_menu()
 
-    def create_tour(self):
+    def create_tour(self, i):
         """ Créer un nouveau round vide pour le tournoi en cour """
         frm = '%Y-%m-%d %H:%M:%S'
-        i = 0
-        while i < self.tournament.nb_tours:
-
-            i += 1
-            name = "Round" + str(i)
-            list_matchs = []
-            date_start = datetime.strftime(datetime.now(), frm)
-            date_end = None
-            current_round = Tour(name, list_matchs, date_start, date_end)
-            self.tournament.list_tour.append(current_round)
+        i += 1
+        name = "Round" + str(i)
+        list_matchs = []
+        date_start = datetime.strftime(datetime.now(), frm)
+        date_end = None
+        current_round = Tour(name, list_matchs, date_start, date_end)
+        self.tournament.list_tour.append(current_round)
 
     def create_match(self, method):
         """ Instancie tous les matchs du round à venir """
