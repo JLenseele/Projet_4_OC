@@ -5,5 +5,3 @@ view/__pycache__/*
 models/__pycache__/*
 controler/__pycache__/*
 *.json
-.flake8
-flake-report/
