@@ -79,6 +79,16 @@ Plusieurs rapport sont disponibles depuis le menu principal:
 - liste des tournois  
 - détails complet d'un tournoi  
 
+## Flake 8
+
+rapport HTML disponible dans ./flake-report/index.html  
+
+config  
+
+    [flake8]
+    exclude = git/, env/,  
+    max-line-length = 119
+
 ## Roadmap
 
 - [x] Création tournois / joueurs
