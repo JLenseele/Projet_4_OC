@@ -72,6 +72,8 @@ Il est également possible d'importer ces mêmes fichiers .json a tout moment.
 il faudra cette fois spécifié le nom du fichier déja présent dans le dossier root.  
 Le nombre de tournois/joueurs sera alors affiché.  
 
+{bonus} -> un fichier db_saved.json est inclus dans le projet. Il contient un tournoi et 25 joueurs prêt à être utilisé.
+
 ### Rapport
 
 Plusieurs rapport sont disponibles depuis le menu principal:  
