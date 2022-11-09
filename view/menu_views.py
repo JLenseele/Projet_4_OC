@@ -41,7 +41,7 @@ class Menu:
         }
         for key in menu_options.keys():
             print(' ', key, '--', menu_options[key])
-        choice = int(input(""))
+        choice = int(input())
         return choice
 
     @staticmethod

@@ -156,20 +156,29 @@ class MainController:
         Retour au menu principal
         """
 
-
         # Détermine le nombre de tours restant à jouer
-        i = len(self.tournament.list_tour)
+        if not len(self.tournament.list_tour):
+            i = 0
+        else:
+            i = len(self.tournament.list_tour) - 1
 
         while i < self.tournament.nb_tours:
-
+            # Détermine la méthode de pair à appliquer selon le tour
             if i == 0:
                 method = 'split'
             else:
                 method = 'swiss'
 
-            self.create_tour(i)
-            self.create_match(method)
+            # Vérifie si le dernier round est clos avant d'en créer un autre
+            if not self.tournament.list_tour or self.tournament.list_tour[-1].date_end is not None:
+                self.create_tour(i)
+                self.create_match(method)
+            else:
+                Tour.__str__(self.tournament.list_tour[-1])
+
             matchs = self.list_matchs
+
+            i += 1
 
             valid_choice = False
             while not valid_choice:
@@ -188,7 +197,7 @@ class MainController:
                         self.run()
                     else:
                         self.error.show_error("MenuError")
-            i += 1
+
         self.tournament.open = 'End'
         self.tournament.result = (self.report.prompt_result(self.tournament))
         self.states = None
@@ -201,23 +210,20 @@ class MainController:
 
     def pick_tournament(self):
         """Permet de sélectionner un tournoi depuis la liste des tournois"""
-        pick = int(self.set_tournament.show_list_tournament(self.list_tournament)) - 1
-        if pick > -1:
-            try:
-                self.tournament = self.list_tournament[pick]
-                if self.tournament.open == 'End':
-                    self.set_tournament.write('Tournament_end')
-                    self.tournament.__str__()
-                    self.run()
-                else:
-                    self.check_second_menu()
-            except IndexError:
-                self.error.show_error("IndexError")
+        try:
+            pick = int(self.set_tournament.show_list_tournament(self.list_tournament)) - 1
+            self.tournament = self.list_tournament[pick]
+            if self.tournament.open == 'End':
+                self.set_tournament.write('Tournament_end')
+                self.tournament.__str__()
                 self.run()
-            except ValueError:
-                self.error.show_error("ValueError")
-                self.run()
-        else:
+            else:
+                self.check_second_menu()
+        except IndexError:
+            self.error.show_error("IndexError")
+            self.run()
+        except ValueError:
+            self.error.show_error("ValueError")
             self.run()
 
     def create_player(self):
@@ -254,7 +260,7 @@ class MainController:
                     self.tournament.id_players.append(player.id_player)
                     self.set_tournament.show('AddOk')
                 else:
-                    self.set_tournament.show('AddNok')
+                    self.error.show_error('AddNok')
             else:
                 self.error.show_error('AddNok2')
 
@@ -300,8 +306,8 @@ class MainController:
     def create_tour(self, i):
         """ Créer un nouveau round vide pour le tournoi en cour """
         frm = '%Y-%m-%d %H:%M:%S'
-        i += 1
-        name = "Round" + str(i)
+
+        name = "Round" + str(i+1)
         list_matchs = []
         date_start = datetime.strftime(datetime.now(), frm)
         date_end = None

@@ -17,6 +17,6 @@ class SetPlayer:
         elif attr == "rank":
             return input("Saisissez l'ID d'un joueurs pour modifier son classement (Q pour quitter)")
         elif attr == "new_rank":
-            return input("Nouveaux classement (ligue) : ")
+            return int(input("Nouveaux classement (ligue) : "))
         else:
             return input()
