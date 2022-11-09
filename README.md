@@ -70,14 +70,16 @@ Il vous sera alors demander de spécifié un nom de fichier.
 
 Il est également possible d'importer ces mêmes fichiers .json a tout moment.  
 il faudra cette fois spécifié le nom du fichier déja présent dans le dossier root.  
-Le nombre de tournois/joueurs sera alors affiché.  
+Le nombre de tournois/joueurs importé sera alors affiché.  
+
+{bonus} -> un fichier db_saved.json est inclus dans le projet. Il contient un tournoi et 25 joueurs prêt à être utilisé.
 
 ### Rapport
 
 Plusieurs rapport sont disponibles depuis le menu principal:  
 - liste des joueurs (ordre alph.) / (classements)  
 - liste des tournois  
-- détails complet d'un tournoi  
+- détails complet d'un tournoi (joueurs / tours / matchs)
 
 ## Flake 8
 
