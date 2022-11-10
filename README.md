@@ -19,18 +19,24 @@ Programme de gestion de tournoi d'échec avec appairage suisse des joueurs
 
 ## Installation & Get Started
 
-Récuperer le projet sur GitHub
+#### Récuperer le projet sur GitHub
 
     git clone https://github.com/JLenseele/Projet_4_OC.git
     cd Projet_4_OC
 
-Créer l'environement virtuel
+#### Créer l'environement virtuel
 
     python -m venv env
     env\Scripts\activate
     pip install -r requirements.txt
     
-Lancer le Script
+#### (Optionnel - rapport Flake8)  
+Il est possible de générer un nouveau rapport via la commande suivante :  
+Le rapport sera disponible dans ./flake-report/index.html
+
+    flake8 --format=html --htmldir=flake-report
+    
+#### Lancer le Script
 
     python main.py
 
@@ -58,7 +64,7 @@ La liste des joueurs sera trié en fonction de leurs score sur le tournoi en cou
 [0.5] -> [0]  
 [0] -> [0]  
 
-Et ainsi de suite jusqu'a la cloture du tournoi.
+Et ainsi de suite jusqu'a la cloture du tournoi.  
 Le classement final est affiché.  
 
 ### Import / Export
