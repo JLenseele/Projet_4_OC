@@ -177,9 +177,7 @@ class MainController:
                 Tour.__str__(self.tournament.list_tour[-1])
 
             matchs = self.list_matchs
-
             i += 1
-
             valid_choice = False
             while not valid_choice:
                 try:
@@ -201,10 +199,8 @@ class MainController:
         self.tournament.open = 'End'
         self.tournament.result = (self.report.prompt_result(self.tournament))
         self.states = None
-
         for player in self.tournament.player:
             player.score_reset()
-
         self.tournament = None
         self.run()
 
@@ -326,7 +322,6 @@ class MainController:
 
         # Triage des joueurs par score
         self.tournament.player.sort(key=attrgetter('score'), reverse=True)
-
         # puis triage des joueurs par rank, pour les joueurs ayant le meme score
         sorted_players = sorted(self.tournament.player, key=attrgetter('score'), reverse=True)
         # regroupement des joueurs avec le meme score dans des sous liste
@@ -339,15 +334,7 @@ class MainController:
 
         # methode utilisé pour le premier round
         if method == "split":
-            upper_player, lower_player = self.split_player(list_sort_players)
-            for i in range(int(nb_match)):
-                j1 = upper_player[i]
-                j2 = lower_player[i]
-                pair = f"{j1.id_player}/{j2.id_player}"
-                reverse_pair = f"{j2.id_player}/{j1.id_player}"
-                self.list_associate_player.append(pair)
-                self.list_associate_player.append(reverse_pair)
-                self.list_matchs.append(Match(upper_player[i], lower_player[i], 0, 0))
+            self.split_method(list_sort_players, nb_match)
 
         # methode pour les rounds suivants
         elif method == "swiss":
@@ -356,68 +343,89 @@ class MainController:
             rematch = 0
 
             while not valid_match:
-                # reinitialise la liste des joueurs utilisés pour le round suivant
                 used_players = []
-                for j in range(long - 1):
-                    # Selection du 1er joueur
-                    j1 = list_sort_players[j]
-                    if j1 not in used_players:
-                        for k in range(rematch, long):
-                            # selection du 2ᵉ joueur
-                            j2 = list_sort_players[k]
-
-                            # si les deux joueurs ne sont pas deja affectés à un autre match
-                            # et sont différents :
-                            if j2 not in used_players and j1 not in used_players and j1 != j2:
-                                # on associe les joueurs dans "pair."
-                                pair = f"{j1.id_player}/{j2.id_player}"
-                                # et dans la "pair" inverse
-                                reverse_pair = f"{j2.id_player}/{j1.id_player}"
-
-                                # Si la paire ou reverse paire n'existe pas deja :
-                                if pair not in self.list_associate_player and \
-                                        reverse_pair not in self.list_associate_player:
-
-                                    # Ajout des pairs dans une liste
-                                    self.list_associate_player.append(pair)
-                                    self.list_associate_player.append(reverse_pair)
-                                    # Ajout des joueurs utilisés dans une autre liste
-                                    used_players.append(j1)
-                                    used_players.append(j2)
-                                    # Creation du match
-                                    new_match = Match(j1, j2, 0, 0)
-                                    # Ajout du match dans la liste des matchs du controller
-                                    self.list_matchs.append(new_match)
+                used_players = self.swiss_method(long, list_sort_players, rematch, used_players)
 
                 # S'il n'y a pas assez de match trouvé :
                 if len(self.list_matchs) < nb_match:
-                    print(f"{rematch} : {len(self.list_matchs)} match trouvés")
-
-                    # Suppression des pairs et reverse trouvés
-                    for i in range(len(self.list_matchs)):
-                        self.list_associate_player.pop()
-                        self.list_associate_player.pop()
-                    # Reinitialisation de la liste des matchs
-                    self.list_matchs = []
-
-                    # rematch s'incrémente pour lancer une nouvelle recherche
-                    # de match avec +1 dans la boucle for J2
-                    rematch += 1
-                    if rematch == 25:
+                    rematch = self.not_enough_match(rematch)
+                    if rematch == self.tournament.nb_player:
                         valid_match = True
 
                 else:
-                    # tournoi nb joueur impair :
-                    # si un joueur n'est pas utilisé dans les matchs du round,
-                    for player in list_sort_players:
-                        if player not in used_players:
-                            # alors, il gagne un point
-                            player.score += 1
-                            used_players.append(player)
+                    self.odd_player(list_sort_players, used_players)
                     valid_match = True
 
         # ajout des matchs dans le round en cour
         self.add_match_to_round()
+
+    def swiss_method(self, long, list_sort_players, rematch, used_players):
+        # reinitialise la liste des joueurs utilisés pour le round suivant
+
+        for j in range(long - 1):
+            # Selection du 1er joueur
+            j1 = list_sort_players[j]
+            if j1 not in used_players:
+                for k in range(rematch, long):
+                    # selection du 2ᵉ joueur
+                    j2 = list_sort_players[k]
+
+                    # si les deux joueurs ne sont pas deja affectés à un autre match
+                    # et sont différents :
+                    if j2 not in used_players and j1 not in used_players and j1 != j2:
+                        # on associe les joueurs dans "pair."
+                        pair = f"{j1.id_player}/{j2.id_player}"
+                        # et dans la "pair" inverse
+                        reverse_pair = f"{j2.id_player}/{j1.id_player}"
+
+                        # Si la paire ou reverse paire n'existe pas deja :
+                        if pair not in self.list_associate_player and \
+                                reverse_pair not in self.list_associate_player:
+                            # Ajout des pairs dans une liste
+                            self.list_associate_player.append(pair)
+                            self.list_associate_player.append(reverse_pair)
+                            # Ajout des joueurs utilisés dans une autre liste
+                            used_players.append(j1)
+                            used_players.append(j2)
+                            # Creation du match
+                            new_match = Match(j1, j2, 0, 0)
+                            # Ajout du match dans la liste des matchs du controller
+                            self.list_matchs.append(new_match)
+        return used_players
+
+    def split_method(self, list_sort_players, nb_match):
+        # Méthode de pair standard pour le premier round
+        upper_player, lower_player = self.split_player(list_sort_players)
+        for i in range(int(nb_match)):
+            j1 = upper_player[i]
+            j2 = lower_player[i]
+            pair = f"{j1.id_player}/{j2.id_player}"
+            reverse_pair = f"{j2.id_player}/{j1.id_player}"
+            self.list_associate_player.append(pair)
+            self.list_associate_player.append(reverse_pair)
+            self.list_matchs.append(Match(upper_player[i], lower_player[i], 0, 0))
+
+    def not_enough_match(self, rematch):
+        # Suppression des pairs et reverse trouvés
+        for i in range(len(self.list_matchs)):
+            self.list_associate_player.pop()
+            self.list_associate_player.pop()
+        # Reinitialisation de la liste des matchs
+        self.list_matchs = []
+        # rematch s'incrémente pour lancer une nouvelle recherche
+        # de match avec +1 dans la boucle for J2
+        rematch += 1
+        return rematch
+
+    @staticmethod
+    def odd_player(list_sort, used_players):
+        # tournoi nb joueur impair :
+        # si un joueur n'est pas utilisé dans les matchs du round,
+        for player in list_sort:
+            if player not in used_players:
+                # alors, il gagne un point
+                player.score += 1
+                used_players.append(player)
 
     def add_match_to_round(self):
         """ Ajout de la liste des matchs créé au round en cour """
@@ -638,6 +646,7 @@ class MainController:
                     date_s = datetime.strptime(serialized_tour['date_s'], frm_date)
                     if serialized_tour['date_e'] == 'None':
                         date_e = None
+                        self.list_matchs = list_matchs
                     else:
                         date_e = datetime.strptime(serialized_tour['date_e'], frm_date)
                     tour = Tour(name, list_m, date_s, date_e)
